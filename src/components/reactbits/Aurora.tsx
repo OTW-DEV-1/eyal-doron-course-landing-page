@@ -108,7 +108,11 @@ export function Aurora({
 
     resize()
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // speed 0 = a still composition: paint the seeded frame once and never
+    // animate. Used by the hero, where every drifted phase re-opened the same
+    // "background looks wrong" debate — the design reference is a static image,
+    // so the hero background is too.
+    if (speed === 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       render(seed)
       return
     }

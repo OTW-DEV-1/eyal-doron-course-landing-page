@@ -20,10 +20,12 @@ export function Hero() {
       />
 
       <div className="hidden sm:block">
-        {/* seed 8.11 opens with the teal/green mass in the upper-left of the
-            aurora area and the sky-blue high, leaving the right side clean —
-            the composition the design reference shows. */}
-        <Aurora colors="#06B58D,#42C5C6,#6EB9F2" intensity={1.92} seed={8.11} style={{ top: 0, bottom: 0, left: 0, width: '70%', height: 'auto' }} />
+        {/* seed 8.11 places the teal/green mass in the upper-left of the aurora
+            area with the sky-blue high and the right side clean — the
+            composition the design reference shows. speed 0 holds it there:
+            drifting blobs kept wandering into washed-out arrangements minutes
+            after load, which read as a broken background. */}
+        <Aurora colors="#06B58D,#42C5C6,#6EB9F2" intensity={1.92} seed={8.11} speed={0} style={{ top: 0, bottom: 0, left: 0, width: '70%', height: 'auto' }} />
         <div className="pointer-events-none absolute inset-0 z-[1]">
           {/* Drawn twice, exactly as the prototype does — the second pass doubles
               the texture's density. One copy alone reads washed out. */}
