@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description,
   openGraph: { title, description, type: 'website', locale: 'he_IL' },
   robots: { index: true, follow: true },
+  // Which commit this page was built from — see next.config.ts.
+  other: { 'build-commit': process.env.NEXT_PUBLIC_BUILD_COMMIT ?? 'unknown' },
 }
 
 export const viewport: Viewport = {
