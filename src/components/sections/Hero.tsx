@@ -20,7 +20,10 @@ export function Hero() {
       />
 
       <div className="hidden sm:block">
-        <Aurora colors="#06B58D,#42C5C6,#6EB9F2" intensity={1.92} style={{ top: 0, bottom: 0, left: 0, width: '70%', height: 'auto' }} />
+        {/* seed 8.11 opens with the teal/green mass in the upper-left of the
+            aurora area and the sky-blue high, leaving the right side clean —
+            the composition the design reference shows. */}
+        <Aurora colors="#06B58D,#42C5C6,#6EB9F2" intensity={1.92} seed={8.11} style={{ top: 0, bottom: 0, left: 0, width: '70%', height: 'auto' }} />
         <div className="pointer-events-none absolute inset-0 z-[1]">
           {/* Drawn twice, exactly as the prototype does — the second pass doubles
               the texture's density. One copy alone reads washed out. */}
@@ -32,11 +35,15 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Slowly counter-rotating seal. */}
+      {/* Slowly counter-rotating seal. Drawn ABOVE the pull-quote card: the
+          Claude Design reference shows the ring's lower text passing over the
+          card's top edge. The prototype's DOM order put the card on top, but
+          the rendered design is the authority here — hence z-4 vs the card's
+          z-3. */}
       <img
         src={asset('circle-badge.webp')}
         alt="תהליך מיוחד לארגונים"
-        className="pointer-events-none absolute top-[41%] left-[14px] z-[3] h-auto w-[150px] animate-[spinSlow_12s_linear_infinite] sm:top-[34%] sm:left-[clamp(135px,14.4vw,288px)] sm:w-[clamp(135px,15.3vw,297px)]"
+        className="pointer-events-none absolute top-[41%] left-[14px] z-[4] h-auto w-[150px] animate-[spinSlow_12s_linear_infinite] sm:top-[34%] sm:left-[clamp(135px,14.4vw,288px)] sm:w-[clamp(135px,15.3vw,297px)]"
       />
 
       <div className="relative z-[2] grid w-full grid-cols-1 items-start gap-[18px] pt-5 sm:gap-7 md:grid-cols-[1.05fr_.95fr] md:gap-14 md:pt-[12vh]">
@@ -83,6 +90,13 @@ export function Hero() {
           </div>
         </div>
 
+        {/* The portrait is bottom-anchored at -468px in the prototype. Its
+            column shortens as the viewport widens (the text wraps less), which
+            at ~2560px pushed the head up until it slid behind the fixed header.
+            The design reference keeps clear space between the header and the
+            head, so beyond 1600px the anchor eases down proportionally
+            (0.14px per extra viewport px, capped at -608px), landing the head
+            where the design shows it while leaving <=1600px untouched. */}
         <div
           data-reveal
           className="relative order-2 flex min-h-[300px] items-end justify-start self-stretch md:order-none md:min-h-[420px]"
@@ -91,7 +105,7 @@ export function Hero() {
             data-hero-portrait
             src={asset('hero-eyal.webp')}
             alt="מטלנט לסופר-טלנט"
-            className="mx-auto block h-auto w-full max-w-[420px] md:absolute md:bottom-[-468px] md:left-0 md:mx-0 md:w-[137.5%] md:max-w-[1133px]"
+            className="mx-auto block h-auto w-full max-w-[420px] md:absolute md:bottom-[clamp(-608px,calc(-468px_-_(100vw_-_1600px)*0.47),-468px)] md:left-0 md:mx-0 md:w-[137.5%] md:max-w-[1133px]"
           />
         </div>
       </div>

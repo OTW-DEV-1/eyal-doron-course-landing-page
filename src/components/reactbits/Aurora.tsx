@@ -7,6 +7,14 @@ type AuroraProps = {
   intensity?: number
   speed?: number
   fadeEdges?: boolean
+  /**
+   * Starting phase of the blob drift. The prototype used Math.random(), which
+   * made the first impression a lottery — some loads matched the design's
+   * intended composition and some looked washed out, and no two screenshots
+   * agreed. A fixed seed makes every load open on the same composition; tune
+   * per instance to art-direct where the colour mass sits.
+   */
+  seed?: number
   className?: string
   style?: CSSProperties
 }
@@ -44,6 +52,7 @@ export function Aurora({
   intensity = 0.55,
   speed = 1,
   fadeEdges = false,
+  seed = 13,
   className,
   style,
 }: AuroraProps) {
@@ -100,12 +109,12 @@ export function Aurora({
     resize()
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      render(0)
+      render(seed)
       return
     }
 
     let raf = 0
-    let t = Math.random() * 100
+    let t = seed
     let last = performance.now()
     let lastDraw = 0
     let visible = false
@@ -160,7 +169,7 @@ export function Aurora({
       ro.disconnect()
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [colors, speed])
+  }, [colors, speed, seed])
 
   const fade = fadeEdges ? FADE : undefined
 
