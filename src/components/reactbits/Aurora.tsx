@@ -91,19 +91,30 @@ export function Aurora({
       canvas.style.filter = `blur(${(BLUR_PX * scale).toFixed(2)}px) saturate(1.05)`
     }
 
+    // Intensity above 1 is realised by repeating the colour passes on the
+    // canvas. The design tool's intensity slider runs to 2.5 and this page uses
+    // values like 1.92, but the exported component mapped intensity to CSS
+    // opacity — which clamps at 1. The editor therefore always rendered a
+    // richer wash than any browser did, and the texture's white shapes were
+    // designed against that richer wash. Passes reproduce what the slider
+    // showed. Capped so the deliberately huge legacy values (7+) tuned against
+    // the clamped renderer don't blow out.
+    const passes = Math.min(3, Math.max(1, Math.round(intensity)))
     const render = (t: number) => {
       ctx.clearRect(0, 0, w, h)
-      blobs.forEach((b) => {
-        const x = w * (0.5 + 0.44 * Math.sin(t * b.sp + b.ph))
-        const y = h * (0.5 + 0.42 * Math.cos(t * 0.8 * b.sp + b.ph * 1.4))
-        const r = Math.max(w, h) * b.rx
-        const g = ctx.createRadialGradient(x, y, 0, x, y, r)
-        g.addColorStop(0, b.c + '5E')
-        g.addColorStop(0.55, b.c + '3C')
-        g.addColorStop(1, b.c + '00')
-        ctx.fillStyle = g
-        ctx.fillRect(0, 0, w, h)
-      })
+      for (let pass = 0; pass < passes; pass++) {
+        blobs.forEach((b) => {
+          const x = w * (0.5 + 0.44 * Math.sin(t * b.sp + b.ph))
+          const y = h * (0.5 + 0.42 * Math.cos(t * 0.8 * b.sp + b.ph * 1.4))
+          const r = Math.max(w, h) * b.rx
+          const g = ctx.createRadialGradient(x, y, 0, x, y, r)
+          g.addColorStop(0, b.c + '5E')
+          g.addColorStop(0.55, b.c + '3C')
+          g.addColorStop(1, b.c + '00')
+          ctx.fillStyle = g
+          ctx.fillRect(0, 0, w, h)
+        })
+      }
     }
 
     resize()
@@ -207,7 +218,9 @@ export function Aurora({
         // Parents that need the aurora contained (rounded cards, dark panels)
         // already carry their own overflow:hidden.
         pointerEvents: 'none',
-        opacity: intensity,
+        // Whole units of intensity are drawn as canvas passes (above); the CSS
+        // opacity carries only the remainder, so nothing clamps.
+        opacity: Math.min(1, intensity / Math.min(3, Math.max(1, Math.round(intensity)))),
         WebkitMaskImage: fade,
         maskImage: fade,
         ...style,
