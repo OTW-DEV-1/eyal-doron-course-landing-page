@@ -119,10 +119,13 @@ export function Hero() {
             put — the head drops by 15% of the height (144px at 1600px, 170px at
             2400px), sinking it behind the badge and the pull-quote card. The
             compensating offset would have to track the height, which varies
-            with the column width. origin-top scales about the element's own top
-            edge instead, so the head holds its position at every viewport for
-            free. Safe here because the reveal engine writes its inline
-            transforms to the wrapper, never to this image. */}
+            with the column width. origin-top-left scales about the element's
+            own top-left corner instead, so the head holds its position at every
+            viewport for free and the artwork stays flush against the left edge
+            of the screen — origin-top (the horizontal centre) was tried and
+            floated it ~7.5% of its width inboard, opening a gap on the left.
+            Safe here because the reveal engine writes its inline transforms to
+            the wrapper, never to this image. */}
         <div
           data-reveal
           className="relative order-2 flex min-h-[300px] items-end justify-start self-stretch md:order-none md:min-h-[420px]"
@@ -131,7 +134,7 @@ export function Hero() {
             data-hero-portrait
             src={asset('hero-eyal.webp')}
             alt="מטלנט לסופר-טלנט"
-            className="mx-auto block h-auto w-full max-w-[420px] md:absolute md:bottom-[clamp(-608px,calc(-468px_-_(100vw_-_1600px)*0.47),-468px)] md:left-0 md:mx-0 md:w-[137.5%] md:max-w-[1133px] md:origin-top md:scale-[.85]"
+            className="mx-auto block h-auto w-full max-w-[420px] md:absolute md:bottom-[clamp(-608px,calc(-468px_-_(100vw_-_1600px)*0.47),-468px)] md:left-0 md:mx-0 md:w-[137.5%] md:max-w-[1133px] md:origin-top-left md:scale-[.85]"
           />
         </div>
       </div>
