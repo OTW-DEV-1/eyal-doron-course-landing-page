@@ -104,7 +104,7 @@ export function Bonuses() {
                   className="relative z-[1] hidden min-h-[480px] items-center justify-center sm:row-span-3 sm:flex"
                 >
                   <div className="flex h-[280px] w-[280px] items-center justify-center rounded-[44px] bg-[linear-gradient(135deg,#06B58D,#42C5C6_50%,#6EB9F2)] shadow-[0_14px_36px_rgba(6,181,141,.28)]">
-                    <img src={asset('logo-white.png')} alt="מטלנט לסופר-טלנט" className="block h-auto w-[78%]" />
+                    <img loading="lazy" decoding="async" src={asset('logo-white.png')} alt="מטלנט לסופר-טלנט" className="block h-auto w-[78%]" />
                   </div>
                 </div>
               ) : null}

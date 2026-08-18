@@ -40,7 +40,7 @@ export function Practice() {
     <section id="practice" className="relative overflow-hidden pt-[30px] pb-16 sm:pt-[100px]">
       <div className="pointer-events-none absolute inset-0 z-0">
         <Aurora colors="#06B58D,#42C5C6,#6EB9F2" intensity={2.3} />
-        <img src={asset('hero-texture.png')} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+        <img loading="lazy" decoding="async" src={asset('hero-texture.png')} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(246,245,243,0)_0%,rgba(246,245,243,.35)_40%,rgba(246,245,243,.8)_62%,rgba(246,245,243,.95)_80%,#f6f5f3_100%)]" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[220px] bg-[linear-gradient(180deg,#f6f5f3_0%,rgba(246,245,243,0)_100%)]" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[220px] bg-[linear-gradient(0deg,#f6f5f3_0%,rgba(246,245,243,0)_100%)]" />
@@ -77,7 +77,7 @@ export function Practice() {
         </div>
 
         <div className="relative order-first mx-2 max-h-[420px] min-h-[420px] self-stretch overflow-hidden md:order-none md:mx-0 md:max-h-none md:min-h-[720px] md:overflow-visible">
-          <img
+          <img loading="lazy" decoding="async"
             data-reveal
             src={asset('practice.webp')}
             alt="דגש על פרקטיקה"

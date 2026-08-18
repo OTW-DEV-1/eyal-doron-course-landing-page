@@ -13,7 +13,7 @@ export function Header() {
         <img
           src={asset('logo-white.png')}
           alt="dr. eyal doron"
-          className="me-3 block h-[34px] justify-self-start sm:h-[37px]"
+          className="ms-3 block h-[34px] justify-self-start sm:h-[37px]"
         />
 
         <nav className="hidden items-center justify-center gap-[14px] text-[16.9px] font-normal whitespace-nowrap lg:flex 2xl:gap-6 2xl:text-[19.4px]">

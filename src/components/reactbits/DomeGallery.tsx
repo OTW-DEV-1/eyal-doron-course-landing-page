@@ -243,11 +243,19 @@ export function DomeGallery({
     }
   }, [enlarged, dragSensitivity, maxVerticalRotationDeg, startInertia, stopInertia])
 
+  // Auto-rotation only runs while the sphere is actually on screen. Spinning 70
+  // 3D-transformed tiles is expensive, and the section sits in the middle of a
+  // long page — most of the time it is nowhere near the viewport.
   useEffect(() => {
     if (!autoRotate) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const root = rootRef.current
+    if (!root) return
+
     let raf = 0
     let last = performance.now()
+    let visible = false
+
     const tick = (now: number) => {
       const dt = (now - last) / 1000
       last = now
@@ -259,8 +267,39 @@ export function DomeGallery({
       }
       raf = requestAnimationFrame(tick)
     }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+
+    const start = () => {
+      if (raf) return
+      last = performance.now()
+      raf = requestAnimationFrame(tick)
+    }
+    const stop = () => {
+      if (!raf) return
+      cancelAnimationFrame(raf)
+      raf = 0
+    }
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting
+        if (visible && !document.hidden) start()
+        else stop()
+      },
+      { rootMargin: '100px' },
+    )
+    io.observe(root)
+
+    const onVisibility = () => {
+      if (document.hidden) stop()
+      else if (visible) start()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      stop()
+      io.disconnect()
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
   }, [autoRotate, enlarged])
 
   /** Ignore the click that ends a drag, so dragging never opens the lightbox. */
@@ -313,7 +352,7 @@ export function DomeGallery({
                     }
                   }}
                 >
-                  {it.src ? <img src={it.src} draggable={false} alt={it.alt} /> : null}
+                  {it.src ? <img decoding="async" src={it.src} draggable={false} alt={it.alt} /> : null}
                 </div>
               </div>
             ))}
@@ -324,7 +363,7 @@ export function DomeGallery({
         <div className="dg-edge dg-edge--bottom" />
         {enlarged ? (
           <div className="dg-lightbox" onClick={() => setEnlarged(null)}>
-            <img src={enlarged} alt="" />
+            <img decoding="async" src={enlarged} alt="" />
           </div>
         ) : null}
       </div>

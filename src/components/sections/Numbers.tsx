@@ -24,7 +24,7 @@ function VideoCard({ v }: { v: (typeof videoTestimonials)[number] }) {
           aria-label={`הפעלת הסרטון של ${v.name}`}
           className="relative flex aspect-video w-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-dark"
         >
-          <img src={v.thumb} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <img loading="lazy" decoding="async" src={v.thumb} alt="" className="absolute inset-0 h-full w-full object-cover" />
           <span className="relative z-[2] flex h-11 w-11 items-center justify-center rounded-full bg-[linear-gradient(135deg,#06B58D,#42C5C6_55%,#6EB9F2)] shadow-[0_10px_26px_rgba(6,181,141,.35)] transition-transform duration-300">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true">
               <path d="M8 5.5v13l11-6.5z" />
@@ -99,7 +99,7 @@ export function Numbers() {
                   {expanded[i] ? 'הצג פחות' : 'קרא עוד'}
                 </button>
                 <div className="mt-1.5 flex min-h-16 items-center gap-[14px]">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={asset(t.photo)}
                     alt={t.name}
                     className="block h-[52px] w-[52px] flex-none rounded-full object-cover"

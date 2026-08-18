@@ -18,6 +18,7 @@ export function CurvedLoop({
   speed = 90,
   height = 190,
 }: CurvedLoopProps) {
+  const svgRef = useRef<SVGSVGElement>(null)
   const measureRef = useRef<SVGTextElement>(null)
   const tpRef = useRef<SVGTextPathElement>(null)
   const [repLen, setRepLen] = useState(0)
@@ -32,21 +33,58 @@ export function CurvedLoop({
     if (document.fonts?.ready) document.fonts.ready.then(() => setTimeout(measure, 60))
   }, [text, fontSize])
 
+  // Each frame rewrites startOffset, which re-lays-out the text along the path —
+  // not something to run while the arc is scrolled out of view.
   useEffect(() => {
     if (!repLen || !tpRef.current) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const svg = svgRef.current
+    if (!svg) return
 
     let raf = 0
     let off = 0
     let last = performance.now()
+    let visible = false
+
     const tick = (now: number) => {
       off = (off + speed * ((now - last) / 1000)) % repLen
       last = now
       tpRef.current?.setAttribute('startOffset', String(-off))
       raf = requestAnimationFrame(tick)
     }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+
+    const start = () => {
+      if (raf) return
+      last = performance.now()
+      raf = requestAnimationFrame(tick)
+    }
+    const stop = () => {
+      if (!raf) return
+      cancelAnimationFrame(raf)
+      raf = 0
+    }
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting
+        if (visible && !document.hidden) start()
+        else stop()
+      },
+      { rootMargin: '100px' },
+    )
+    io.observe(svg)
+
+    const onVisibility = () => {
+      if (document.hidden) stop()
+      else if (visible) start()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      stop()
+      io.disconnect()
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
   }, [repLen, speed])
 
   const reps = repLen ? Math.min(40, Math.ceil(2600 / repLen) + 2) : 10
@@ -57,6 +95,7 @@ export function CurvedLoop({
 
   return (
     <svg
+      ref={svgRef}
       width="100%"
       height={height}
       viewBox={`0 0 1600 ${height}`}

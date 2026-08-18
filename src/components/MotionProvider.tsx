@@ -11,7 +11,7 @@ type LetterHost = HTMLElement & {
   _clipTxt?: boolean
   _bgImg?: string
 }
-type RevealEl = HTMLElement & { _seenAtLoad?: boolean }
+type RevealEl = HTMLElement & { _seenAtLoad?: boolean; _lastP?: number }
 type ClipAnc = HTMLElement & { _bgImg?: string }
 
 /**
@@ -102,16 +102,35 @@ function initLetters(lq: LetterHost) {
 }
 
 /**
- * Scroll-driven motion for the whole page. Everything is derived from element
- * positions on each frame rather than from one-shot triggers, so elements fade
- * back out on the way past and the page stays correct after resize or
- * navigation.
+ * Scroll-driven motion for the whole page.
+ *
+ * Performance note: every frame is split into a read phase and a write phase.
+ * Interleaving `getBoundingClientRect` with style writes would force the
+ * browser to recalculate layout once per element — with ~100 animated elements
+ * that alone is enough to make scrolling stutter. All geometry is gathered
+ * first, then all styles are applied.
  */
 export function MotionProvider() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    document.querySelectorAll<LetterHost>('[data-letters]').forEach((el) => {
+    // The section markup is static, so these lists are collected once rather
+    // than re-queried on every frame.
+    let reveals = Array.from(document.querySelectorAll<RevealEl>('[data-reveal]'))
+    let letterHosts = Array.from(document.querySelectorAll<LetterHost>('[data-letters]'))
+    let stackCards = Array.from(document.querySelectorAll<HTMLElement>('[data-stack-card]'))
+    const tl = document.querySelector<HTMLElement>('[data-tl-wrap]')
+    const tlLine = tl?.querySelector<HTMLElement>('[data-tl-line]') ?? null
+    const tlBg = tl?.querySelector<HTMLElement>('[data-tl-bg]') ?? null
+    const tlDots = tl ? Array.from(tl.querySelectorAll<HTMLElement>('[data-tl-dot]')) : []
+
+    const refreshNodes = () => {
+      reveals = Array.from(document.querySelectorAll<RevealEl>('[data-reveal]'))
+      letterHosts = Array.from(document.querySelectorAll<LetterHost>('[data-letters]'))
+      stackCards = Array.from(document.querySelectorAll<HTMLElement>('[data-stack-card]'))
+    }
+
+    letterHosts.forEach((el) => {
       try {
         initLetters(el)
       } catch {
@@ -125,16 +144,30 @@ export function MotionProvider() {
     const paint = () => {
       ticking = false
       const vh = window.innerHeight || 800
+      const sy = window.scrollY || 0
 
-      document.querySelectorAll<RevealEl>('[data-reveal]').forEach((el) => {
-        const r = el.getBoundingClientRect()
+      /* ---------------- read phase: no style writes below this line -------- */
+
+      // Hoisted out of the per-element loop — reading it inside would force a
+      // reflow on every iteration.
+      const docH = document.body.scrollHeight || 0
+
+      const revealRects = reveals.map((el) => el.getBoundingClientRect())
+      const letterRects = letterHosts.map((el) => el.getBoundingClientRect())
+      const stackRects = stackCards.map((el) => el.getBoundingClientRect())
+
+      const tlRect = tl ? tl.getBoundingClientRect() : null
+      const tlDotRects = tlRect ? tlDots.map((d) => d.getBoundingClientRect()) : []
+
+      /* ---------------- write phase ---------------------------------------- */
+
+      reveals.forEach((el, i) => {
+        const r = revealRects[i]
         // Anything already on screen at load is shown outright — no fade-in for
         // content the visitor can already see.
-        if ((firstPaint || (window.scrollY || 0) < 40) && r.top < vh && r.bottom > 0) el._seenAtLoad = true
+        if ((firstPaint || sy < 40) && r.top < vh && r.bottom > 0) el._seenAtLoad = true
         if (r.bottom < -300 || r.top > vh + 300) return
 
-        const sy = window.scrollY || 0
-        const docH = document.body.scrollHeight || 0
         // Near the document end there is no scroll left to drive the reveal, so
         // push the last screenful in explicitly.
         const endBoost = r.top < vh ? clamp01((sy + vh - (docH - vh * 0.3)) / (vh * 0.25)) : 0
@@ -150,6 +183,12 @@ export function MotionProvider() {
             )
         const exit = clamp01(r.bottom / (vh * 0.22))
         const p = Math.min(enter, exit)
+
+        // Once an element is settled, stop re-writing identical styles. This is
+        // the common case while scrolling past finished content.
+        if (el._lastP === 1 && p === 1) return
+        el._lastP = p
+
         const y = (1 - enter) * 90 - (1 - exit) * 90
         const bp = clamp01(p / 0.45)
         const blur = bp > 0.97 ? 'none' : `blur(${((1 - bp) * 8).toFixed(2)}px)`
@@ -165,55 +204,62 @@ export function MotionProvider() {
       })
       firstPaint = false
 
-      document.querySelectorAll<LetterHost>('[data-letters]').forEach((lq) => {
-        try {
-          initLetters(lq)
-        } catch {
-          return
-        }
+      letterHosts.forEach((lq, i) => {
         if (!lq._letters) return
-        const qr = lq.getBoundingClientRect()
+        const qr = letterRects[i]
         if (qr.bottom < -200 || qr.top > vh + 200) return
         const prog = (lq as RevealEl)._seenAtLoad ? 1 : clamp01((vh * 1.0 - qr.top) / (vh * 0.42))
         const L = lq._letters
         const N = L.length
-        for (let i = 0; i < N; i++) {
+        for (let j = 0; j < N; j++) {
           // Each character trails the one before it by a fraction of the total.
-          const lp = clamp01((prog - (i / N) * 0.75) / 0.25)
-          L[i].style.opacity = String(lp)
-          L[i].style.transform = `translateY(${((1 - lp) * 34).toFixed(1)}px)`
+          const lp = clamp01((prog - (j / N) * 0.75) / 0.25)
+          L[j].style.opacity = String(lp)
+          L[j].style.transform = `translateY(${((1 - lp) * 34).toFixed(1)}px)`
         }
       })
 
+      // Sticky cards: as the next one rises, shrink, darken and blur the one behind.
+      stackCards.forEach((card, i) => {
+        const next = stackRects[i + 1]
+        if (!next) {
+          card.style.transform = ''
+          card.style.filter = ''
+          return
+        }
+        const r = stackRects[i]
+        const dist = next.top - r.top
+        const dist0 = r.height + 28
+        const p = clamp01((dist0 - dist) / Math.max(1, (dist0 - 18) * 0.6))
+        card.style.transform = `scale(${(1 - p * 0.14).toFixed(4)})`
+        card.style.transformOrigin = 'center top'
+        card.style.filter = `brightness(${(1 - p * 0.28).toFixed(3)}) blur(${(p * 2.5).toFixed(2)}px)`
+      })
+
       // Process timeline: fill the spine and light up dots as it passes them.
-      const tl = document.querySelector<HTMLElement>('[data-tl-wrap]')
-      if (tl) {
-        const tr = tl.getBoundingClientRect()
-        const prog = clamp01((vh * 0.6 - tr.top) / tr.height)
-        const line = tl.querySelector<HTMLElement>('[data-tl-line]')
-        const dots = tl.querySelectorAll<HTMLElement>('[data-tl-dot]')
+      if (tl && tlRect) {
+        const prog = clamp01((vh * 0.6 - tlRect.top) / tlRect.height)
         let topOff = 0
         let botOff = 0
-        if (dots.length) {
+        if (tlDotRects.length) {
           // Trim the spine to run between the first and last dot centres.
-          const fr = dots[0].getBoundingClientRect()
-          const lr = dots[dots.length - 1].getBoundingClientRect()
-          topOff = fr.top + fr.height / 2 - tr.top
-          botOff = tr.bottom - (lr.top + lr.height / 2)
-          const bg = tl.querySelector<HTMLElement>('[data-tl-bg]')
-          if (bg) {
-            bg.style.top = `${topOff}px`
-            bg.style.bottom = `${botOff}px`
+          const fr = tlDotRects[0]
+          const lr = tlDotRects[tlDotRects.length - 1]
+          topOff = fr.top + fr.height / 2 - tlRect.top
+          botOff = tlRect.bottom - (lr.top + lr.height / 2)
+          if (tlBg) {
+            tlBg.style.top = `${topOff}px`
+            tlBg.style.bottom = `${botOff}px`
           }
         }
-        const span = Math.max(1, tr.height - topOff - botOff)
-        if (line) {
-          line.style.top = `${topOff}px`
-          line.style.height = `${(prog * span).toFixed(1)}px`
+        const span = Math.max(1, tlRect.height - topOff - botOff)
+        if (tlLine) {
+          tlLine.style.top = `${topOff}px`
+          tlLine.style.height = `${(prog * span).toFixed(1)}px`
         }
-        const lineY = tr.top + topOff + span * prog
-        dots.forEach((d) => {
-          const dr = d.getBoundingClientRect()
+        const lineY = tlRect.top + topOff + span * prog
+        tlDots.forEach((d, i) => {
+          const dr = tlDotRects[i]
           const on = dr.top + dr.height / 2 <= lineY + 2
           d.style.background = on ? 'linear-gradient(120deg,#06B58D,#42C5C6 50%,#6EB9F2)' : '#3A3844'
           d.style.boxShadow = on ? '0 0 20px rgba(66,197,198,.75)' : 'none'
@@ -222,49 +268,27 @@ export function MotionProvider() {
       }
     }
 
+    // One listener, one rAF per frame, covering reveals, letters, stack and timeline.
     const onScroll = () => {
       if (!ticking) {
         ticking = true
         requestAnimationFrame(paint)
       }
     }
-
-    // "Mach a Kartn" stacking cards: as the next sticky card rises, shrink,
-    // darken and blur the one behind it.
-    let stackTick = false
-    const onStack = () => {
-      if (stackTick) return
-      stackTick = true
-      requestAnimationFrame(() => {
-        stackTick = false
-        const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-stack-card]'))
-        cards.forEach((card, i) => {
-          const next = cards[i + 1]
-          if (!next) {
-            card.style.transform = ''
-            card.style.filter = ''
-            return
-          }
-          const r = card.getBoundingClientRect()
-          const nr = next.getBoundingClientRect()
-          const dist = nr.top - r.top
-          const dist0 = r.height + 28
-          const p = clamp01((dist0 - dist) / Math.max(1, (dist0 - 18) * 0.6))
-          card.style.transform = `scale(${(1 - p * 0.14).toFixed(4)})`
-          card.style.transformOrigin = 'center top'
-          card.style.filter = `brightness(${(1 - p * 0.28).toFixed(3)}) blur(${(p * 2.5).toFixed(2)}px)`
-        })
-      })
+    const onResize = () => {
+      refreshNodes()
+      onScroll()
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll, { passive: true })
-    window.addEventListener('scroll', onStack, { passive: true })
+    window.addEventListener('resize', onResize, { passive: true })
     paint()
-    onStack()
     // Late repaints catch layout that settles after fonts and images load.
     const t1 = setTimeout(paint, 400)
-    const t2 = setTimeout(paint, 1200)
+    const t2 = setTimeout(() => {
+      refreshNodes()
+      paint()
+    }, 1200)
 
     const lenis = new Lenis({ duration: 1.15, smoothWheel: true })
     let lraf = 0
@@ -275,52 +299,59 @@ export function MotionProvider() {
     lraf = requestAnimationFrame(raf)
 
     // Anchor links must go through Lenis, otherwise native smooth scrolling
-    // fights it and the page jitters.
-    const anchors = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'))
-    const anchorHandlers = anchors.map((a) => {
-      const handler = (e: MouseEvent) => {
-        const href = a.getAttribute('href')
-        if (!href || href === '#') return
-        const target = document.querySelector(href)
-        if (!target) return
-        e.preventDefault()
-        lenis.scrollTo(target as HTMLElement, { offset: -70 })
-      }
-      a.addEventListener('click', handler)
-      return { a, handler }
-    })
+    // fights it and the page jitters. One delegated listener rather than one
+    // per anchor.
+    const onAnchorClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement | null)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null
+      if (!a) return
+      const href = a.getAttribute('href')
+      if (!href || href === '#') return
+      const target = document.querySelector(href)
+      if (!target) return
+      e.preventDefault()
+      lenis.scrollTo(target as HTMLElement, { offset: -70 })
+    }
+    document.addEventListener('click', onAnchorClick)
 
-    // Magnetic buttons: nudge toward the cursor, spring back on leave.
-    const magnets = Array.from(document.querySelectorAll<HTMLElement>('[data-magnet]'))
-    const magnetHandlers = magnets.map((el) => {
-      const move = (ev: MouseEvent) => {
-        const r = el.getBoundingClientRect()
-        gsap.to(el, {
-          x: (ev.clientX - r.left - r.width / 2) * 0.22,
-          y: (ev.clientY - r.top - r.height / 2) * 0.3,
-          duration: 0.4,
-          ease: 'power2.out',
-        })
-      }
-      const leave = () => gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.5)' })
-      el.addEventListener('mousemove', move)
-      el.addEventListener('mouseleave', leave)
-      return { el, move, leave }
-    })
+    // Magnetic buttons: nudge toward the cursor, spring back on leave. Bound by
+    // delegation so no per-element listeners are attached, and skipped entirely
+    // on touch-primary devices where there is no cursor to follow.
+    const hasHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    const onPointerMove = (ev: PointerEvent) => {
+      const el = (ev.target as HTMLElement | null)?.closest?.('[data-magnet]') as HTMLElement | null
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      gsap.to(el, {
+        x: (ev.clientX - r.left - r.width / 2) * 0.22,
+        y: (ev.clientY - r.top - r.height / 2) * 0.3,
+        duration: 0.4,
+        ease: 'power2.out',
+      })
+    }
+    const onPointerOut = (ev: PointerEvent) => {
+      const el = (ev.target as HTMLElement | null)?.closest?.('[data-magnet]') as HTMLElement | null
+      if (!el) return
+      // Ignore moves between children of the same button.
+      if (el.contains(ev.relatedTarget as Node | null)) return
+      gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.5)' })
+    }
+    if (hasHover) {
+      document.addEventListener('pointermove', onPointerMove, { passive: true })
+      document.addEventListener('pointerout', onPointerOut, { passive: true })
+    }
 
     return () => {
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-      window.removeEventListener('scroll', onStack)
+      window.removeEventListener('resize', onResize)
       clearTimeout(t1)
       clearTimeout(t2)
       cancelAnimationFrame(lraf)
       lenis.destroy()
-      anchorHandlers.forEach(({ a, handler }) => a.removeEventListener('click', handler))
-      magnetHandlers.forEach(({ el, move, leave }) => {
-        el.removeEventListener('mousemove', move)
-        el.removeEventListener('mouseleave', leave)
-      })
+      document.removeEventListener('click', onAnchorClick)
+      if (hasHover) {
+        document.removeEventListener('pointermove', onPointerMove)
+        document.removeEventListener('pointerout', onPointerOut)
+      }
     }
   }, [])
 

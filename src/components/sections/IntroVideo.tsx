@@ -29,7 +29,7 @@ export function IntroVideo() {
               aria-label="הפעלת סרטון הפתיחה"
               className="relative flex h-full w-full cursor-pointer items-center justify-center bg-dark"
             >
-              <img src={INTRO_VIDEO_POSTER} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              <img loading="lazy" decoding="async" src={INTRO_VIDEO_POSTER} alt="" className="absolute inset-0 h-full w-full object-cover" />
               <span className="relative z-[2] flex h-16 w-16 items-center justify-center rounded-full bg-[linear-gradient(135deg,#06B58D,#42C5C6_55%,#6EB9F2)] shadow-[0_14px_36px_rgba(6,181,141,.35)] transition-transform duration-300 hover:scale-[1.08]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true">
                   <path d="M8 5.5v13l11-6.5z" />
