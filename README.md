@@ -51,13 +51,26 @@ var — no code changes.
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
    NEXT_PUBLIC_SUPABASE_BUCKET=site-assets
-   SUPABASE_SERVICE_ROLE_KEY=<service role key>
+   SUPABASE_SECRET_KEY=sb_secret_...
    ```
 3. `npm run upload-assets`
 
 The script creates the bucket (public) if it is missing and upserts all 44
-files, so re-run it whenever artwork changes. The service-role key is only used
-by that script — it is never bundled into the client.
+files, so re-run it whenever artwork changes.
+
+**On keys.** `SUPABASE_SECRET_KEY` is a secret key from Settings -> API Keys.
+It is the current replacement for the pre-2025 `service_role` JWT, which the
+dashboard now files under "Legacy API keys"; the old `SUPABASE_SERVICE_ROLE_KEY`
+name still works as a fallback. Prefer a secret key — those rotate and revoke
+individually, whereas rotating the legacy JWT invalidates everything at once.
+
+The secret key is used **only** by `npm run upload-assets` and never reaches the
+browser. Never prefix it with `NEXT_PUBLIC_`, which would inline it into the
+client bundle as a full-access credential.
+
+**No publishable/anon key is needed.** Most Supabase guides tell you to set one,
+but nothing in `src/` uses a Supabase key at all — the bucket is public, so the
+browser fetches ordinary image URLs.
 
 `next.config.ts` whitelists the Supabase hostname for `next/image`, derived from
 `NEXT_PUBLIC_SUPABASE_URL` at build time.

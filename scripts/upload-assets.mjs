@@ -4,7 +4,8 @@
  *
  *   1. Create a Supabase project.
  *   2. Copy .env.example to .env.local and fill in the three SUPABASE values.
- *      The service-role key is required — the anon key cannot write to storage.
+ *      SUPABASE_SECRET_KEY must be a secret key (sb_secret_...) from
+ *      Settings -> API Keys. A publishable key cannot write to storage.
  *   3. npm run upload-assets
  *
  * The bucket is created public if it does not exist. Re-running is safe: files
@@ -33,14 +34,24 @@ try {
 }
 
 const URL_ = process.env.NEXT_PUBLIC_SUPABASE_URL
-const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+// SUPABASE_SERVICE_ROLE_KEY is the pre-2025 name for the same credential;
+// still accepted so existing .env files and deploy configs keep working.
+const KEY = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
 const BUCKET = process.env.NEXT_PUBLIC_SUPABASE_BUCKET ?? 'site-assets'
 
 if (!URL_ || !KEY) {
   console.error(
-    'Missing config. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY\n' +
+    'Missing config. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY\n' +
       'in .env.local (see .env.example), then re-run `npm run upload-assets`.',
   )
+  process.exit(1)
+}
+
+// The publishable key is the prominent one in the dashboard, so it is the easy
+// one to grab by mistake. It cannot write to storage, and without this check the
+// failure surfaces as an opaque permissions error on the first upload.
+if (KEY.startsWith('sb_publishable_')) {
+  console.error('That is a publishable key. Uploading needs the secret key (sb_secret_...) from Settings -> API Keys.')
   process.exit(1)
 }
 
