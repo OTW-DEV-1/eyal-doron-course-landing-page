@@ -30,16 +30,18 @@ export function Hero() {
           {/* Drawn twice, exactly as the prototype does — the second pass doubles
               the texture's density. One copy alone reads washed out.
 
-              object-left, not the default centre: the artwork is 16:9 with one
-              blob on its left edge and another on its right edge. A centred
-              cover crop slides outward as the viewport widens, leaving only a
-              sliver of the left blob (an empty wedge at the screen corner) and
-              exposing the right blob's leading arc as a floating crescent.
-              Anchoring the crop left keeps the left blob whole in the corner
-              and crops the right blob away at every viewport — which is the
-              framing the design shows. */}
-          <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] object-cover object-left" />
-          <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] object-cover object-left" />
+              max-w-[950px]: the artwork is 16:9 with a blob on its left edge
+              and another on its right edge, and the design's authored width
+              shows only a ~700px-wide centred window of it — both blobs sit
+              outside that window. Without the cap, the centred cover crop
+              widens with the viewport and slides onto both: a sliver of the
+              left blob appears as an empty wedge at the screen corner and the
+              right blob's leading arc as a floating crescent. 950px at this
+              image's cover scale reproduces the design's window at every
+              viewport. (Anchoring the crop left instead was tried and exposes
+              the entire left blob — worse.) */}
+          <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] max-w-[950px] object-cover" />
+          <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] max-w-[950px] object-cover" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(246,245,242,0)_0%,rgba(246,245,242,0)_46%,rgba(246,245,242,.62)_60%,rgba(246,245,242,.9)_72%,#F6F5F2_100%)]" />
           <div className="absolute inset-x-0 top-0 h-[150px] bg-[linear-gradient(180deg,rgba(246,245,242,.85)_20%,rgba(246,245,242,0)_100%)]" />
           <div className="absolute inset-x-0 bottom-0 h-[240px] bg-[linear-gradient(180deg,rgba(246,245,243,0)_0%,rgba(246,245,243,.96)_70%,#f6f5f3_100%)]" />
