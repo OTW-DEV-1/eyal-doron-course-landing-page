@@ -3,7 +3,7 @@ import { asset } from '@/lib/assets'
 export function Footer() {
   return (
     <footer className="flex justify-center px-7 py-16">
-      <img loading="lazy" decoding="async" src={asset('logo-black.png')} alt="dr. eyal doron" className="block h-14" />
+      <img loading="lazy" decoding="async" src={asset('logo-black.webp')} alt="dr. eyal doron" className="block h-14" />
     </footer>
   )
 }

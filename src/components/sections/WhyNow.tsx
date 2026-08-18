@@ -12,7 +12,7 @@ export function WhyNow() {
     <section id="logos" className="relative z-[1] overflow-hidden pt-10 pb-4 sm:pt-0 sm:pb-[52px]">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <Aurora colors="#06B58D,#42C5C6,#6EB9F2" intensity={7.56} />
-        <img loading="lazy" decoding="async" src={asset('hero-texture-2.png')} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <img loading="lazy" decoding="async" src={asset('hero-texture-2.webp')} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(246,245,243,0)_0%,rgba(246,245,243,0)_18%,rgba(246,245,243,.42)_32%,rgba(246,245,243,.82)_42%,rgba(246,245,243,.82)_58%,rgba(246,245,243,.42)_68%,rgba(246,245,243,0)_82%,rgba(246,245,243,0)_100%)]" />
         <div className="absolute inset-x-0 top-0 h-[300px] bg-[linear-gradient(180deg,#f6f5f3_0%,rgba(246,245,243,.8)_35%,rgba(246,245,243,0)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 h-[300px] bg-[linear-gradient(0deg,#f6f5f3_0%,rgba(246,245,243,.8)_35%,rgba(246,245,243,0)_100%)]" />

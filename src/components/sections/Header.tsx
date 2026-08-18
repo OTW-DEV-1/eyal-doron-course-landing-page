@@ -11,7 +11,7 @@ export function Header() {
     <header className="fixed top-[10px] sm:top-4 right-0 left-0 z-[100] px-3 sm:px-[clamp(16px,4.5vw,5em)]">
       <div className="flex w-full items-center justify-between gap-[18px] rounded-full border border-white/[.14] bg-black/[.78] px-[14px] py-[10px] shadow-[inset_0_1px_0_rgba(255,255,255,.16)] backdrop-blur-[18px] backdrop-saturate-[1.4] lg:grid lg:grid-cols-[1fr_auto_1fr]">
         <img
-          src={asset('logo-white.png')}
+          src={asset('logo-white.webp')}
           alt="dr. eyal doron"
           className="ms-3 block h-[34px] justify-self-start sm:h-[37px]"
         />

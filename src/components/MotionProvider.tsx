@@ -110,6 +110,19 @@ function initLetters(lq: LetterHost) {
  * that alone is enough to make scrolling stutter. All geometry is gathered
  * first, then all styles are applied.
  */
+
+/**
+ * Lenis smooths the scroll position toward the real one over ~0.9s. That is a
+ * deliberate effect, but it is also, by definition, input latency — if the page
+ * feels sluggish to drag, this is the first thing to turn off.
+ *
+ * Set to false to hand scrolling back to the browser entirely. Everything else
+ * (reveals, timeline, stacking cards) keeps working; it is driven by scroll
+ * position, not by Lenis.
+ */
+const SMOOTH_SCROLL = true
+const SMOOTH_SCROLL_DURATION = 0.9
+
 export function MotionProvider() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -190,15 +203,19 @@ export function MotionProvider() {
         el._lastP = p
 
         const y = (1 - enter) * 90 - (1 - exit) * 90
-        const bp = clamp01(p / 0.45)
-        const blur = bp > 0.97 ? 'none' : `blur(${((1 - bp) * 8).toFixed(2)}px)`
 
+        // The prototype also animated `filter: blur()` here. A blur forces the
+        // element into an offscreen buffer and a separate blur pass at its full
+        // rendered size, every frame — on full-width sections, with several
+        // revealing at once, it was the single most expensive thing happening
+        // during a scroll. Opacity, translate and scale are all compositor-only
+        // and cost effectively nothing. The reveal reads the same without it.
         const xa = el.getAttribute('data-reveal-x')
         const md = el.getAttribute('data-reveal-mode')
         let vals: gsap.TweenVars
-        if (xa) vals = { opacity: p, x: (1 - p) * (xa === 'right' ? 130 : -130), y: 0, scale: 1, filter: blur }
-        else if (md === 'scale') vals = { opacity: p, x: 0, y: 0, scale: 0.55 + 0.45 * p, filter: blur }
-        else vals = { opacity: p, x: 0, y, scale: 0.93 + 0.07 * p, filter: blur }
+        if (xa) vals = { opacity: p, x: (1 - p) * (xa === 'right' ? 130 : -130), y: 0, scale: 1 }
+        else if (md === 'scale') vals = { opacity: p, x: 0, y: 0, scale: 0.55 + 0.45 * p }
+        else vals = { opacity: p, x: 0, y, scale: 0.93 + 0.07 * p }
 
         gsap.set(el, vals)
       })
@@ -290,17 +307,21 @@ export function MotionProvider() {
       paint()
     }, 1200)
 
-    const lenis = new Lenis({ duration: 1.15, smoothWheel: true })
+    const lenis = SMOOTH_SCROLL
+      ? new Lenis({ duration: SMOOTH_SCROLL_DURATION, smoothWheel: true })
+      : null
     let lraf = 0
-    const raf = (time: number) => {
-      lenis.raf(time)
+    if (lenis) {
+      const raf = (time: number) => {
+        lenis.raf(time)
+        lraf = requestAnimationFrame(raf)
+      }
       lraf = requestAnimationFrame(raf)
     }
-    lraf = requestAnimationFrame(raf)
 
-    // Anchor links must go through Lenis, otherwise native smooth scrolling
-    // fights it and the page jitters. One delegated listener rather than one
-    // per anchor.
+    // Anchor links go through Lenis when it is active, otherwise native smooth
+    // scrolling fights it and the page jitters. One delegated listener rather
+    // than one per anchor.
     const onAnchorClick = (e: MouseEvent) => {
       const a = (e.target as HTMLElement | null)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null
       if (!a) return
@@ -309,7 +330,12 @@ export function MotionProvider() {
       const target = document.querySelector(href)
       if (!target) return
       e.preventDefault()
-      lenis.scrollTo(target as HTMLElement, { offset: -70 })
+      if (lenis) {
+        lenis.scrollTo(target as HTMLElement, { offset: -70 })
+      } else {
+        const top = (target as HTMLElement).getBoundingClientRect().top + window.scrollY - 70
+        window.scrollTo({ top, behavior: 'smooth' })
+      }
     }
     document.addEventListener('click', onAnchorClick)
 
@@ -346,7 +372,7 @@ export function MotionProvider() {
       clearTimeout(t1)
       clearTimeout(t2)
       cancelAnimationFrame(lraf)
-      lenis.destroy()
+      lenis?.destroy()
       document.removeEventListener('click', onAnchorClick)
       if (hasHover) {
         document.removeEventListener('pointermove', onPointerMove)

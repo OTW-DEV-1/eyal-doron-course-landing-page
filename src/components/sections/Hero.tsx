@@ -22,7 +22,7 @@ export function Hero() {
       <div className="hidden sm:block">
         <Aurora colors="#06B58D,#42C5C6,#6EB9F2" intensity={1.92} style={{ top: 0, bottom: 0, left: 0, width: '70%', height: 'auto' }} />
         <div className="pointer-events-none absolute inset-0 z-[1]">
-          <img src={asset('hero-texture.png')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] object-cover" />
+          <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] object-cover" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(246,245,242,0)_0%,rgba(246,245,242,0)_46%,rgba(246,245,242,.62)_60%,rgba(246,245,242,.9)_72%,#F6F5F2_100%)]" />
           <div className="absolute inset-x-0 top-0 h-[150px] bg-[linear-gradient(180deg,rgba(246,245,242,.85)_20%,rgba(246,245,242,0)_100%)]" />
           <div className="absolute inset-x-0 bottom-0 h-[240px] bg-[linear-gradient(180deg,rgba(246,245,243,0)_0%,rgba(246,245,243,.96)_70%,#f6f5f3_100%)]" />
@@ -31,7 +31,7 @@ export function Hero() {
 
       {/* Slowly counter-rotating seal. */}
       <img
-        src={asset('circle-badge.png')}
+        src={asset('circle-badge.webp')}
         alt="תהליך מיוחד לארגונים"
         className="pointer-events-none absolute top-[41%] left-[14px] z-[3] h-auto w-[150px] animate-[spinSlow_12s_linear_infinite] sm:top-[34%] sm:left-[clamp(135px,14.4vw,288px)] sm:w-[clamp(135px,15.3vw,297px)]"
       />
@@ -86,7 +86,7 @@ export function Hero() {
         >
           <img
             data-hero-portrait
-            src={asset('hero-eyal.png')}
+            src={asset('hero-eyal.webp')}
             alt="מטלנט לסופר-טלנט"
             className="mx-auto block h-auto w-full max-w-[420px] md:absolute md:bottom-[-468px] md:left-0 md:mx-0 md:w-[137.5%] md:max-w-[1133px]"
           />
@@ -119,7 +119,7 @@ export function Hero() {
         className="absolute bottom-[calc(clamp(24px,6vh,70px)+15px)] right-[calc(clamp(30px,6vw,110px)-15px)] z-[3] hidden h-[clamp(121px,11vw,165px)] w-[clamp(121px,11vw,165px)] xl:block"
       >
         <img
-          src={asset('scroll-arrow.png')}
+          src={asset('scroll-arrow.webp')}
           alt=""
           className="absolute top-1/2 left-[calc(50%+35px)] h-[47%] w-[42%] animate-[bobArrow_2.2s_ease-in-out_infinite] object-contain"
         />

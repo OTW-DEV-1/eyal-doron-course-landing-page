@@ -27,6 +27,7 @@ and the contact form returns a "not configured" error until Resend is set up.
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run upload-assets` | Push `public/assets` to Supabase Storage |
+| `npm run optimize-assets` | Regenerate `public/assets` from the design export (needs `project/`) |
 
 ---
 
@@ -35,9 +36,9 @@ and the contact form returns a "not configured" error until Resend is set up.
 Every image resolves through [`src/lib/assets.ts`](src/lib/assets.ts):
 
 ```ts
-asset('logos/nestle.png')
-// no env set  ->  /assets/logos/nestle.png          (from public/)
-// env set     ->  https://<ref>.supabase.co/storage/v1/object/public/site-assets/logos/nestle.png
+asset('logos/nestle.webp')
+// no env set  ->  /assets/logos/nestle.webp          (from public/)
+// env set     ->  https://<ref>.supabase.co/storage/v1/object/public/site-assets/logos/nestle.webp
 ```
 
 The same relative paths work against both sources, so switching over is one env
@@ -117,17 +118,30 @@ project/                  original Claude Design export (reference only)
 single scroll handler rather than one-shot triggers, so elements fade back out
 on the way past and stay correct after resize:
 
-- `data-reveal` — fade/slide/blur in. `data-reveal-early` triggers sooner,
+- `data-reveal` — fade/slide in. `data-reveal-early` triggers sooner,
   `data-reveal-x="left|right"` slides horizontally, `data-reveal-mode="scale"` scales up.
 - `data-letters` — splits a headline into per-character spans and staggers them.
   Handles gradient-clipped text by re-applying the gradient to each character.
-- `data-stack-card` — sticky cards that shrink/darken/blur as the next covers them.
+- `data-stack-card` — sticky cards that shrink/darken/blur as the next covers them (blur is cheap here — only 4 cards).
 - `data-tl-wrap` / `data-tl-line` / `data-tl-dot` — the process timeline spine.
 - `data-magnet` — buttons that lean toward the cursor.
 
 Lenis provides smooth scrolling; anchor links are routed through it so native
 smooth-scroll does not fight it. Everything is disabled under
 `prefers-reduced-motion`.
+
+**If scrolling feels sluggish**, the first thing to try is `SMOOTH_SCROLL` at the
+top of `MotionProvider.tsx`. Lenis eases the scroll position toward the real one
+over ~0.9s, which is a deliberate effect but is also, by definition, input
+latency. Setting it to `false` hands scrolling back to the browser; every other
+effect keeps working, since they are driven by scroll position rather than by
+Lenis.
+
+The reveal deliberately does **not** animate `filter: blur()`, though the
+prototype did. A blur forces the element into an offscreen buffer and a separate
+blur pass at its full rendered size every frame; on full-width sections with
+several revealing at once it was the most expensive thing happening during a
+scroll. Opacity, translate and scale are compositor-only and effectively free.
 
 ---
 
@@ -145,6 +159,17 @@ smooth-scroll does not fight it. Everything is disabled under
   testimonials. They live as named utilities in `globals.css`.
 - Original assets had Hebrew filenames and spaces; they were renamed to ASCII
   slugs when copied into `public/assets` (URLs need it).
+- **Images are resized and converted to WebP by `scripts/optimize-assets.mjs`.**
+  This matters more than it sounds. The originals were full-resolution
+  (1920x1080 and up) and the browser cost of an image is its *decoded* bitmap —
+  width x height x 4 bytes, held for as long as the image is live, regardless of
+  file size. The 19 gallery photos alone decoded to ~125MB while being displayed
+  in ~400px tiles; the whole page was ~161MB. Past a few hundred MB browsers
+  evict decoded images and re-decode on demand, which is what made gallery tiles
+  blink out mid-rotation and contributed heavily to scroll stutter. Everything is
+  now sized to ~2x its real display size: **161MB -> 58MB decoded, 5.3MB -> 1.2MB
+  on disk.** If you replace artwork, put the original in `project/` and re-run
+  the script rather than dropping a full-size file into `public/assets`.
 - The design export in `project/` is 396 MB of raw media; only the HTML and brand
   docs are committed — the media folders are gitignored.
 

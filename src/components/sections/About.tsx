@@ -26,7 +26,7 @@ export function About() {
           className="relative z-[1] -mx-[18px] flex h-auto min-h-0 w-[calc(100%+36px)] items-end justify-center self-stretch sm:mx-0 sm:w-full sm:justify-end sm:min-h-[clamp(560px,64vw,900px)]"
         >
           <img loading="lazy" decoding="async"
-            src={asset('eyal.png')}
+            src={asset('eyal.webp')}
             alt="ד״ר אייל דורון"
             className="static z-[1] block h-auto w-full max-w-none sm:absolute sm:right-0 sm:bottom-0 sm:w-[125%] sm:max-w-[775px]"
           />

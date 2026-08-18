@@ -251,7 +251,7 @@
    media query rather than two <img> tags so only one file is ever fetched. */
 @media (max-width: 900px) {
   [data-hero-portrait] {
-    content: url('/assets/eyal-mobile.png');
+    content: url('/assets/eyal-mobile.webp');
   }
 }
 

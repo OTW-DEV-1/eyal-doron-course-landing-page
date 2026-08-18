@@ -4,7 +4,7 @@
  * Images live in Supabase Storage in production. Until the bucket is created
  * (or in local dev without env vars) the identical files under /public/assets
  * are used, so the site renders correctly either way. Both sources use the same
- * relative paths — `logos/nestle.png` resolves to the same file in both.
+ * relative paths — `logos/nestle.webp` resolves to the same file in both.
  *
  * Set NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_BUCKET and run
  * `npm run upload-assets` to switch over.

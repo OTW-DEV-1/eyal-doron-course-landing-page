@@ -91,7 +91,7 @@ export function Faq() {
           {/* Phones get the flat animated wash instead of the layered aurora. */}
           <div className="pointer-events-none absolute inset-0 z-0 animate-[heroGradShift_9s_ease-in-out_infinite_alternate] bg-[linear-gradient(90deg,#06B58D_0%,#42C5C6_25%,#6EB9F2_50%,#42C5C6_75%,#06B58D_100%)] bg-[length:300%_100%] opacity-[.19] [mask-image:radial-gradient(ellipse_75%_55%_at_0%_0%,#000_0%,rgba(0,0,0,.5)_45%,transparent_74%),radial-gradient(ellipse_75%_55%_at_100%_100%,#000_0%,rgba(0,0,0,.5)_45%,transparent_74%)] sm:hidden" />
 
-          <img loading="lazy" decoding="async" src={asset('price-texture.png')} alt="" className="pointer-events-none absolute inset-0 z-[1] h-full w-full object-cover" />
+          <img loading="lazy" decoding="async" src={asset('price-texture.webp')} alt="" className="pointer-events-none absolute inset-0 z-[1] h-full w-full object-cover" />
 
           <h3 className="text-headline relative z-[2] mb-5 text-[42.5px] leading-[1.1] font-bold sm:text-[clamp(34px,6.3vw,75px)]">
             מחיר והנחה
