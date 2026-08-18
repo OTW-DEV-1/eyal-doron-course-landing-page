@@ -54,9 +54,13 @@ const SINGLES = [
   ['uploads/hero7.png', 'hero-eyal.webp', 1100, true],
   ['uploads/Eyal2.png', 'eyal.webp', 900, true],
   ['uploads/EyalMobile.png', 'eyal-mobile.webp', 840, true],
-  ['uploads/HeroEle.png', 'hero-texture.webp', 1600, false],
-  ['uploads/HeroEle-f8ff9310.png', 'hero-texture-2.webp', 1600, false],
-  ['uploads/bg6.png', 'price-texture.webp', 1600, false],
+  // The three "textures" are NOT opaque photos: their alpha channels peak at
+  // 69/255 (HeroEle) and 38/255 (bg6) — the whole image is soft translucent
+  // shapes composited over an aurora. Alpha must be kept lossless: lossy alpha
+  // quantises those subtle gradients into hard-edged bands.
+  ['uploads/HeroEle.png', 'hero-texture.webp', 1600, 'lossless-alpha'],
+  ['uploads/HeroEle-f8ff9310.png', 'hero-texture-2.webp', 1600, 'lossless-alpha'],
+  ['uploads/bg6.png', 'price-texture.webp', 1600, 'lossless-alpha'],
   ['uploads/img6 (1).webp', 'practice.webp', 1400, true],
   ['uploads/Circle1.png', 'circle-badge.webp', 400, true],
   ['assets/scroll-arrow.png', 'scroll-arrow.webp', 200, true],
@@ -97,7 +101,7 @@ async function emit(srcPath, outPath, maxDim, { quality = 80, alpha = true } = {
   const info = await sharp(srcPath)
     .rotate() // honour EXIF orientation
     .resize({ width: maxDim, height: maxDim, fit: 'inside', withoutEnlargement: true })
-    .webp({ quality, alphaQuality: alpha ? 90 : 0, effort: 5 })
+    .webp({ quality, alphaQuality: alpha === 'lossless-alpha' ? 100 : alpha ? 90 : 0, effort: 5 })
     .toFile(outPath)
   count++
   bytes += info.size
