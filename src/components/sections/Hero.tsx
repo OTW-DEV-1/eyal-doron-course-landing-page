@@ -36,7 +36,7 @@ export function Hero() {
       <img
         src={asset('circle-badge.webp')}
         alt="תהליך מיוחד לארגונים"
-        className="pointer-events-none absolute top-[41%] left-[14px] z-[4] h-auto w-[150px] animate-[spinSlow_12s_linear_infinite] sm:top-[34%] sm:left-[clamp(135px,14.4vw,288px)] sm:w-[clamp(135px,15.3vw,297px)]"
+        className="pointer-events-none absolute top-[41%] left-[14px] z-[3] h-auto w-[150px] animate-[spinSlow_12s_linear_infinite] sm:top-[34%] sm:left-[clamp(135px,14.4vw,288px)] sm:w-[clamp(135px,15.3vw,297px)]"
       />
 
       <div className="relative z-[2] grid w-full grid-cols-1 items-start gap-[18px] pt-5 sm:gap-7 md:grid-cols-[1.05fr_.95fr] md:gap-14 md:pt-[12vh]">
@@ -96,10 +96,17 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Pull-quote card. Floats over the hero art only once there is room for it. */}
+      {/* Pull-quote card. Floats over the hero art only once there is room for it.
+
+          Horizontal padding is 30px, not the prototype's 34px. The closing line
+          needs 569.6px and the prototype's content box is 567.75px — it fits
+          there by 0.02px, which is luck rather than a margin. At 34px here the
+          line wrapped, making the card 28px taller, which pushed its top edge up
+          into the rotating badge. 30px gives ~6px of slack; the 4px difference
+          is imperceptible and the layout stops depending on sub-pixel rounding. */}
       <div
         data-reveal
-        className="relative z-[3] mt-[10px] max-w-none rounded-[24px] border border-white bg-[linear-gradient(160deg,rgba(255,255,255,.82)_0%,rgba(239,238,235,.72)_100%)] px-[34px] py-[30px] text-center backdrop-blur-[14px] sm:mt-6 xl:absolute xl:bottom-[clamp(55px,11vh,125px)] xl:left-[clamp(60px,9vw,150px)] xl:mt-0 xl:max-w-[638px] xl:shadow-[0_26px_60px_rgba(20,19,24,.10)]"
+        className="relative z-[3] mt-[10px] max-w-none rounded-[24px] border border-white bg-[linear-gradient(160deg,rgba(255,255,255,.82)_0%,rgba(239,238,235,.72)_100%)] px-[30px] py-[30px] text-center backdrop-blur-[14px] sm:mt-6 xl:absolute xl:bottom-[clamp(55px,11vh,125px)] xl:left-[clamp(60px,9vw,150px)] xl:mt-0 xl:w-[638px] xl:max-w-[638px] xl:shadow-[0_26px_60px_rgba(20,19,24,.10)]"
       >
         <p className="text-[22.5px] leading-[1.3] font-bold text-ink sm:text-[clamp(20px,1.65vw,22.5px)]">
           העולם זז מהר. משבר רודף משבר,
