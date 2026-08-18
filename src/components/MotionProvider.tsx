@@ -200,6 +200,19 @@ export function MotionProvider() {
         // Once an element is settled, stop re-writing identical styles. This is
         // the common case while scrolling past finished content.
         if (el._lastP === 1 && p === 1) return
+
+        // At p === 1 the transform is the identity, so strip the inline styles
+        // entirely rather than writing `scale(1) translate(0,0)`. A lingering
+        // transform keeps the element on its own compositor layer forever, and
+        // these are full-width sections: 96 of them accumulated ~273MB of GPU
+        // layer memory just from scrolling the page once. Clearing is visually
+        // identical and lets the layer go.
+        if (p === 1) {
+          el._lastP = 1
+          gsap.set(el, { clearProps: 'transform,opacity,filter,willChange' })
+          el.style.opacity = '1'
+          return
+        }
         el._lastP = p
 
         const y = (1 - enter) * 90 - (1 - exit) * 90
@@ -217,6 +230,11 @@ export function MotionProvider() {
         else if (md === 'scale') vals = { opacity: p, x: 0, y: 0, scale: 0.55 + 0.45 * p }
         else vals = { opacity: p, x: 0, y, scale: 0.93 + 0.07 * p }
 
+        // force3D:false keeps GSAP on a 2D matrix(). Its default ("auto") emits
+        // matrix3d(), which promotes every animated element to its own
+        // compositor layer — on full-width sections that is enormously
+        // expensive and buys nothing, since we are only translating and scaling.
+        vals.force3D = false
         gsap.set(el, vals)
       })
       firstPaint = false

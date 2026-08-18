@@ -15,21 +15,29 @@ const FADE =
   'linear-gradient(180deg,transparent 0%,rgba(0,0,0,.6) 18%,#000 40%,#000 60%,rgba(0,0,0,.6) 82%,transparent 100%)'
 
 /**
- * The page mounts a dozen of these, so cost per instance matters a lot.
+ * Drifting blurred colour blobs — the brand's "aurora" motif.
  *
- * Three things keep it cheap:
- *  - The canvas backing store is capped at MAX_DIM on its longest side and
- *    stretched by CSS. The output passes through a 30px blur, so the upscale is
- *    invisible — but it cuts the per-frame fill from millions of pixels to tens
- *    of thousands.
- *  - Animation is paused entirely while the canvas is off-screen.
- *  - Frames are capped at ~30fps. The blobs drift slowly; 60fps buys nothing.
+ * The page mounts twelve of these, so compositor cost dominates. The key is
+ * that the canvas ELEMENT is kept small and scaled up, rather than being
+ * full-size:
  *
- * Motion is time-based rather than per-frame so the drift speed is identical
- * regardless of the frame cap or a dropped frame.
+ *   `filter: blur()` forces the browser to allocate a second render surface at
+ *   the element's rendered size. A full-viewport aurora therefore cost two
+ *   ~1.4Mpx layers, and twelve of them accounted for most of a ~359MB GPU layer
+ *   budget. Past that budget the compositor rasterises in tiles and culls
+ *   anything outside its interest rect, which is what made the 3D gallery
+ *   sphere paint in and drop out mid-rotation.
+ *
+ *   Instead the canvas is laid out at its backing-store size (<=360px) and
+ *   scaled up with a transform. `filter` applies before `transform`, so the
+ *   blur runs on the small surface and is scaled up with it — the blur radius
+ *   is pre-divided so the on-screen result is unchanged. Layer area drops ~20x.
+ *
+ * The output is a heavy blur either way, so the upscale is invisible.
  */
 const MAX_DIM = 360
 const FRAME_MS = 1000 / 30
+const BLUR_PX = 30
 
 export function Aurora({
   colors = '#06B58D,#42C5C6,#6EB9F2',
@@ -39,11 +47,13 @@ export function Aurora({
   className,
   style,
 }: AuroraProps) {
+  const hostRef = useRef<HTMLDivElement>(null)
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
+    const host = hostRef.current
     const canvas = ref.current
-    if (!canvas) return
+    if (!host || !canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
@@ -59,11 +69,17 @@ export function Aurora({
     let h = 0
 
     const resize = () => {
-      const cw = Math.max(2, canvas.offsetWidth)
-      const ch = Math.max(2, canvas.offsetHeight)
+      const cw = Math.max(2, host.offsetWidth)
+      const ch = Math.max(2, host.offsetHeight)
       const scale = Math.min(1, MAX_DIM / Math.max(cw, ch))
       w = canvas.width = Math.max(2, Math.round(cw * scale))
       h = canvas.height = Math.max(2, Math.round(ch * scale))
+      // Lay the canvas out at its backing-store size, then scale it to fill the
+      // host. Blur is pre-divided so it lands at BLUR_PX once scaled up.
+      canvas.style.width = `${w}px`
+      canvas.style.height = `${h}px`
+      canvas.style.transform = `scale(${cw / w}, ${ch / h})`
+      canvas.style.filter = `blur(${(BLUR_PX * scale).toFixed(2)}px) saturate(1.05)`
     }
 
     const render = (t: number) => {
@@ -83,7 +99,6 @@ export function Aurora({
 
     resize()
 
-    // A static frame is enough when the visitor has asked for reduced motion.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       render(0)
       return
@@ -97,8 +112,8 @@ export function Aurora({
 
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop)
-      // Advance by wall-clock so the cap below cannot slow the drift down.
-      t += (now - last) / 1000 * 0.168 * speed
+      // Advance by wall-clock so the frame cap cannot slow the drift down.
+      t += ((now - last) / 1000) * 0.168 * speed
       last = now
       if (now - lastDraw < FRAME_MS) return
       lastDraw = now
@@ -120,21 +135,19 @@ export function Aurora({
     const io = new IntersectionObserver(
       ([entry]) => {
         visible = entry.isIntersecting
-        if (visible) start()
+        if (visible && !document.hidden) start()
         else stop()
       },
       { rootMargin: '120px' },
     )
-    io.observe(canvas)
+    io.observe(host)
 
     const ro = new ResizeObserver(() => {
       resize()
-      // Repaint immediately so a resize while paused does not leave it blank.
       if (!visible) render(t)
     })
-    ro.observe(canvas)
+    ro.observe(host)
 
-    // Stop burning frames on a background tab.
     const onVisibility = () => {
       if (document.hidden) stop()
       else if (visible) start()
@@ -152,22 +165,32 @@ export function Aurora({
   const fade = fadeEdges ? FADE : undefined
 
   return (
-    <canvas
-      ref={ref}
+    <div
+      ref={hostRef}
       aria-hidden="true"
       className={className}
       style={{
         position: 'absolute',
         inset: 0,
-        width: '100%',
-        height: '100%',
-        filter: 'blur(30px) saturate(1.05)',
-        opacity: intensity,
+        overflow: 'hidden',
         pointerEvents: 'none',
+        opacity: intensity,
         WebkitMaskImage: fade,
         maskImage: fade,
         ...style,
       }}
-    />
+    >
+      <canvas
+        ref={ref}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          transformOrigin: '0 0',
+          // width/height/transform/filter are set from the effect once the host
+          // has been measured.
+        }}
+      />
+    </div>
   )
 }
