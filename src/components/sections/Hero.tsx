@@ -28,9 +28,18 @@ export function Hero() {
         <Aurora colors="#06B58D,#42C5C6,#6EB9F2" intensity={1.92} seed={8.11} speed={0} style={{ top: 0, bottom: 0, left: 0, width: '70%', height: 'auto' }} />
         <div className="pointer-events-none absolute inset-0 z-[1]">
           {/* Drawn twice, exactly as the prototype does — the second pass doubles
-              the texture's density. One copy alone reads washed out. */}
-          <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] object-cover" />
-          <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] object-cover" />
+              the texture's density. One copy alone reads washed out.
+
+              object-left, not the default centre: the artwork is 16:9 with one
+              blob on its left edge and another on its right edge. A centred
+              cover crop slides outward as the viewport widens, leaving only a
+              sliver of the left blob (an empty wedge at the screen corner) and
+              exposing the right blob's leading arc as a floating crescent.
+              Anchoring the crop left keeps the left blob whole in the corner
+              and crops the right blob away at every viewport — which is the
+              framing the design shows. */}
+          <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] object-cover object-left" />
+          <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] object-cover object-left" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(246,245,242,0)_0%,rgba(246,245,242,0)_46%,rgba(246,245,242,.62)_60%,rgba(246,245,242,.9)_72%,#F6F5F2_100%)]" />
           <div className="absolute inset-x-0 top-0 h-[150px] bg-[linear-gradient(180deg,rgba(246,245,242,.85)_20%,rgba(246,245,242,0)_100%)]" />
           <div className="absolute inset-x-0 bottom-0 h-[240px] bg-[linear-gradient(180deg,rgba(246,245,243,0)_0%,rgba(246,245,243,.96)_70%,#f6f5f3_100%)]" />
