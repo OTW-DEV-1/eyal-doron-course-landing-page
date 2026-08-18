@@ -13,26 +13,40 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
  * Layer budget: `.dg-item` is already promoted to its own compositor layer by
  * its 3D transform plus backface-visibility. Adding `translateZ(0)` to the
  * inner `.dg-item__image` as well would promote a second layer per tile — 140
- * for a 70-tile sphere. Past the GPU's layer budget the compositor starts
- * evicting and re-rasterising them, which shows up as tiles visibly blinking
- * out and back in mid-rotation. One layer per tile is enough.
+ * for a 70-tile sphere. One layer per tile is enough.
  *
  * For the same reason the tile <img> tags carry no `decoding="async"`: letting
- * the browser defer decodes on a continuously animating element reintroduces
- * the same flicker.
+ * the browser defer decodes on a continuously animating element can leave a
+ * tile unpainted mid-rotation.
+ *
+ * Tiles must be clipped and culled by exactly ONE mechanism, not four. The
+ * original stylesheet stacked them, and any of the extra three could blank a
+ * tile mid-drag depending on how a given GPU driver resolves the 3D scene:
+ *
+ *   - `contain: paint` on .dg-stage clipped descendants to the stage box. Tiles
+ *     projected toward the camera legitimately extend past it, and paint
+ *     containment also blocks the compositor from treating the 3D scene as one
+ *     unit. .sphere-main's overflow:hidden already provides the edge clip.
+ *   - `transform-style: preserve-3d` on .dg-item__image made the tile's own
+ *     contents a 3D rendering context, though it has no 3D children. That
+ *     splits the tile's plane from its parent's and invites sorting artefacts.
+ *   - `backface-visibility: hidden` on .dg-item__image and on the <img>
+ *     re-evaluated the facing test per nested element. Only .dg-item needs it,
+ *     to hide the far side of the sphere; repeating it lets a child be culled
+ *     while its parent stays visible, which reads as a tile clipping away.
  */
 const DG_CSS = `
 .sphere-root{position:relative;width:100%;height:100%;--radius:520px;--circ:calc(var(--radius)*3.14);--rot-y:calc((360deg / var(--segments-x))/2);--rot-x:calc((360deg / var(--segments-y))/2);--item-width:calc(var(--circ)/var(--segments-x));--item-height:calc(var(--circ)/var(--segments-y));}
 .sphere-root *{box-sizing:border-box;}
-.sphere,.dg-item,.dg-item__image{transform-style:preserve-3d;}
+.sphere,.dg-item{transform-style:preserve-3d;}
 .sphere-main{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;background:transparent;cursor:grab;}
 .sphere-main:active{cursor:grabbing;}
-.dg-stage{width:100%;height:100%;display:grid;place-items:center;perspective:calc(var(--radius)*2);perspective-origin:50% 50%;contain:layout paint size;}
+.dg-stage{width:100%;height:100%;display:grid;place-items:center;perspective:calc(var(--radius)*2);perspective-origin:50% 50%;}
 .sphere{transform:translateZ(calc(var(--radius)*-1));will-change:transform;}
 .dg-overlay{position:absolute;inset:0;margin:auto;z-index:3;pointer-events:none;background-image:radial-gradient(rgba(235,235,235,0) 65%,var(--overlay-blur-color,#F6F5F2) 100%);}
 .dg-item{width:calc(var(--item-width)*var(--item-size-x));height:calc(var(--item-height)*var(--item-size-y));position:absolute;top:-999px;bottom:-999px;left:-999px;right:-999px;margin:auto;transform-origin:50% 50%;backface-visibility:hidden;transition:transform 300ms;transform:rotateY(calc(var(--rot-y) * (var(--offset-x) + ((var(--item-size-x) - 1)/2)))) rotateX(calc(var(--rot-x) * (var(--offset-y) - ((var(--item-size-y) - 1)/2)))) translateZ(var(--radius));}
-.dg-item__image{position:absolute;display:block;inset:10px;border-radius:var(--tile-radius,24px);background:transparent;overflow:hidden;backface-visibility:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;pointer-events:auto;}
-.dg-item__image img{width:100%;height:100%;object-fit:cover;pointer-events:none;backface-visibility:hidden;filter:var(--image-filter,none);}
+.dg-item__image{position:absolute;display:block;inset:10px;border-radius:var(--tile-radius,24px);background:transparent;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;pointer-events:auto;}
+.dg-item__image img{width:100%;height:100%;object-fit:cover;pointer-events:none;filter:var(--image-filter,none);}
 .dg-edge{position:absolute;left:0;right:0;height:120px;z-index:5;pointer-events:none;background:linear-gradient(to bottom,transparent,var(--overlay-blur-color,#F6F5F2));}
 .dg-edge--top{top:0;transform:rotate(180deg);}
 .dg-edge--bottom{bottom:0;}
