@@ -22,6 +22,9 @@ export function Hero() {
       <div className="hidden sm:block">
         <Aurora colors="#06B58D,#42C5C6,#6EB9F2" intensity={1.92} style={{ top: 0, bottom: 0, left: 0, width: '70%', height: 'auto' }} />
         <div className="pointer-events-none absolute inset-0 z-[1]">
+          {/* Drawn twice, exactly as the prototype does — the second pass doubles
+              the texture's density. One copy alone reads washed out. */}
+          <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] object-cover" />
           <img src={asset('hero-texture.webp')} alt="" className="absolute inset-y-0 left-0 h-full w-[52%] object-cover" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(246,245,242,0)_0%,rgba(246,245,242,0)_46%,rgba(246,245,242,.62)_60%,rgba(246,245,242,.9)_72%,#F6F5F2_100%)]" />
           <div className="absolute inset-x-0 top-0 h-[150px] bg-[linear-gradient(180deg,rgba(246,245,242,.85)_20%,rgba(246,245,242,0)_100%)]" />
@@ -33,7 +36,7 @@ export function Hero() {
       <img
         src={asset('circle-badge.webp')}
         alt="תהליך מיוחד לארגונים"
-        className="pointer-events-none absolute top-[41%] left-[14px] z-[3] h-auto w-[150px] animate-[spinSlow_12s_linear_infinite] sm:top-[34%] sm:left-[clamp(135px,14.4vw,288px)] sm:w-[clamp(135px,15.3vw,297px)]"
+        className="pointer-events-none absolute top-[41%] left-[14px] z-[4] h-auto w-[150px] animate-[spinSlow_12s_linear_infinite] sm:top-[34%] sm:left-[clamp(135px,14.4vw,288px)] sm:w-[clamp(135px,15.3vw,297px)]"
       />
 
       <div className="relative z-[2] grid w-full grid-cols-1 items-start gap-[18px] pt-5 sm:gap-7 md:grid-cols-[1.05fr_.95fr] md:gap-14 md:pt-[12vh]">

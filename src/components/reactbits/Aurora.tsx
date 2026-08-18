@@ -164,6 +164,22 @@ export function Aurora({
 
   const fade = fadeEdges ? FADE : undefined
 
+  // `inset: 0` below is only a default. If the caller pins one edge and gives a
+  // size, the opposite edge has to be released or the box is over-constrained —
+  // and this page is RTL, where the browser resolves that by ignoring `left`,
+  // not `right`. That silently flipped the hero's aurora to the wrong side.
+  const s = (style ?? {}) as Record<string, unknown>
+  const release = {
+    ...(s.width !== undefined && s.left !== undefined && s.right === undefined ? { right: 'auto' } : {}),
+    ...(s.width !== undefined && s.right !== undefined && s.left === undefined ? { left: 'auto' } : {}),
+    ...(s.height !== undefined && s.height !== 'auto' && s.top !== undefined && s.bottom === undefined
+      ? { bottom: 'auto' }
+      : {}),
+    ...(s.height !== undefined && s.height !== 'auto' && s.bottom !== undefined && s.top === undefined
+      ? { top: 'auto' }
+      : {}),
+  }
+
   return (
     <div
       ref={hostRef}
@@ -172,12 +188,17 @@ export function Aurora({
       style={{
         position: 'absolute',
         inset: 0,
-        overflow: 'hidden',
+        // Deliberately NOT overflow:hidden. A CSS blur paints far outside the
+        // element's box, and that soft spill is what makes the aurora read as a
+        // glow rather than a rectangle. Clipping it here produced hard edges.
+        // Parents that need the aurora contained (rounded cards, dark panels)
+        // already carry their own overflow:hidden.
         pointerEvents: 'none',
         opacity: intensity,
         WebkitMaskImage: fade,
         maskImage: fade,
         ...style,
+        ...release,
       }}
     >
       <canvas
