@@ -111,7 +111,18 @@ export function Hero() {
             The design reference keeps clear space between the header and the
             head, so beyond 1600px the anchor eases down proportionally
             (0.14px per extra viewport px, capped at -608px), landing the head
-            where the design shows it while leaving <=1600px untouched. */}
+            where the design shows it while leaving <=1600px untouched.
+
+            The 15% reduction is a transform scale, not a smaller width. The
+            portrait is square and bottom-anchored below the fold, so shrinking
+            its width shortens it by the same amount and the bottom edge stays
+            put — the head drops by 15% of the height (144px at 1600px, 170px at
+            2400px), sinking it behind the badge and the pull-quote card. The
+            compensating offset would have to track the height, which varies
+            with the column width. origin-top scales about the element's own top
+            edge instead, so the head holds its position at every viewport for
+            free. Safe here because the reveal engine writes its inline
+            transforms to the wrapper, never to this image. */}
         <div
           data-reveal
           className="relative order-2 flex min-h-[300px] items-end justify-start self-stretch md:order-none md:min-h-[420px]"
@@ -120,7 +131,7 @@ export function Hero() {
             data-hero-portrait
             src={asset('hero-eyal.webp')}
             alt="מטלנט לסופר-טלנט"
-            className="mx-auto block h-auto w-full max-w-[420px] md:absolute md:bottom-[clamp(-608px,calc(-468px_-_(100vw_-_1600px)*0.47),-468px)] md:left-0 md:mx-0 md:w-[137.5%] md:max-w-[1133px]"
+            className="mx-auto block h-auto w-full max-w-[420px] md:absolute md:bottom-[clamp(-608px,calc(-468px_-_(100vw_-_1600px)*0.47),-468px)] md:left-0 md:mx-0 md:w-[137.5%] md:max-w-[1133px] md:origin-top md:scale-[.85]"
           />
         </div>
       </div>
