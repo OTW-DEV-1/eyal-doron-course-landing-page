@@ -43,6 +43,8 @@ const FADE =
  *
  * The output is a heavy blur either way, so the upscale is invisible.
  */
+/** Upper bound of the design tool's intensity slider; see `level` below. */
+const SLIDER_MAX = 2.5
 const MAX_DIM = 360
 const FRAME_MS = 1000 / 30
 const BLUR_PX = 30
@@ -97,9 +99,18 @@ export function Aurora({
     // opacity — which clamps at 1. The editor therefore always rendered a
     // richer wash than any browser did, and the texture's white shapes were
     // designed against that richer wash. Passes reproduce what the slider
-    // showed. Capped so the deliberately huge legacy values (7+) tuned against
-    // the clamped renderer don't blow out.
-    const passes = Math.min(3, Math.max(1, Math.round(intensity)))
+    // showed.
+    //
+    // Values beyond the slider's 2.5 maximum are legacy: they were authored
+    // against the opacity mapping, where everything from 1 upwards clamped to
+    // the same fully opaque wash, so 7.56 described exactly what 1 does. Read
+    // as a pass count they stack three opaque passes instead, and the blobs'
+    // radial gradients never reach their transparent stop before the canvas
+    // ends — the wash saturates edge to edge and the aurora paints a hard
+    // rectangle with a blurred rim rather than a glow. Collapse them back to
+    // the single opaque pass they actually described.
+    const level = intensity > SLIDER_MAX ? 1 : intensity
+    const passes = Math.min(3, Math.max(1, Math.round(level)))
     const render = (t: number) => {
       ctx.clearRect(0, 0, w, h)
       for (let pass = 0; pass < passes; pass++) {
@@ -219,8 +230,12 @@ export function Aurora({
         // already carry their own overflow:hidden.
         pointerEvents: 'none',
         // Whole units of intensity are drawn as canvas passes (above); the CSS
-        // opacity carries only the remainder, so nothing clamps.
-        opacity: Math.min(1, intensity / Math.min(3, Math.max(1, Math.round(intensity)))),
+        // opacity carries only the remainder, so nothing clamps. Mirrors the
+        // effect's `level`/`passes` derivation.
+        opacity: (() => {
+          const level = intensity > SLIDER_MAX ? 1 : intensity
+          return Math.min(1, level / Math.min(3, Math.max(1, Math.round(level))))
+        })(),
         WebkitMaskImage: fade,
         maskImage: fade,
         ...style,
