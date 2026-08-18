@@ -37,15 +37,17 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Slowly counter-rotating seal. Drawn ABOVE the pull-quote card: the
-          Claude Design reference shows the ring's lower text passing over the
-          card's top edge. The prototype's DOM order put the card on top, but
-          the rendered design is the authority here — hence z-4 vs the card's
-          z-3. */}
+      {/* Slowly counter-rotating seal. Must NEVER overlap the pull-quote card.
+          Wherever the card is absolutely positioned (xl+), the badge anchors to
+          the same bottom edge: card top sits at its bottom offset + ~271px of
+          card height, and the badge's bottom is pinned 24px above that. Because
+          both measure from the section's bottom, no viewport size can push them
+          into each other. Below xl the card is in normal flow far beneath the
+          badge, so the top-percentage anchor there is safe. */}
       <img
         src={asset('circle-badge.webp')}
         alt="תהליך מיוחד לארגונים"
-        className="pointer-events-none absolute top-[41%] left-[14px] z-[4] h-auto w-[150px] animate-[spinSlow_12s_linear_infinite] sm:top-[34%] sm:left-[clamp(135px,14.4vw,288px)] sm:w-[clamp(135px,15.3vw,297px)]"
+        className="pointer-events-none absolute top-[41%] left-[14px] z-[4] h-auto w-[150px] animate-[spinSlow_12s_linear_infinite] sm:top-[34%] sm:left-[clamp(135px,14.4vw,288px)] sm:w-[clamp(135px,15.3vw,297px)] xl:top-auto xl:bottom-[calc(clamp(55px,11vh,125px)+295px)]"
       />
 
       <div className="relative z-[2] grid w-full grid-cols-1 items-start gap-[18px] pt-5 sm:gap-7 md:grid-cols-[1.05fr_.95fr] md:gap-14 md:pt-[12vh]">
