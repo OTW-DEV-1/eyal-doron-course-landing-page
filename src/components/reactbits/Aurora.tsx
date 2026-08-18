@@ -184,7 +184,7 @@ export function Aurora({
       ro.disconnect()
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [colors, speed, seed])
+  }, [colors, speed, seed, intensity])
 
   const fade = fadeEdges ? FADE : undefined
 
