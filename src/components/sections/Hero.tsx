@@ -113,17 +113,26 @@ export function Hero() {
             (0.14px per extra viewport px, capped at -608px), landing the head
             where the design shows it while leaving <=1600px untouched.
 
-            The 15% reduction is a transform scale, not a smaller width. The
-            portrait is square and bottom-anchored below the fold, so shrinking
-            its width shortens it by the same amount and the bottom edge stays
-            put — the head drops by 15% of the height (144px at 1600px, 170px at
-            2400px), sinking it behind the badge and the pull-quote card. The
-            compensating offset would have to track the height, which varies
-            with the column width. origin-top-left scales about the element's
-            own top-left corner instead, so the head holds its position at every
-            viewport for free and the artwork stays flush against the left edge
-            of the screen — origin-top (the horizontal centre) was tried and
-            floated it ~7.5% of its width inboard, opening a gap on the left.
+            The portrait renders at 93.5% via a transform, not via a smaller
+            authored width. It is square and bottom-anchored below the fold, so
+            changing its width changes its height by the same amount while the
+            bottom edge stays pinned, which slides the head vertically by the
+            full difference; the compensating offset would have to track a
+            height that varies with the column width. A transform sidesteps
+            that — the scale is taken about the element's own box, so one pair
+            of values holds at every viewport.
+
+            origin-top-left keeps the left edge at x=0, so the artwork stays
+            flush against the left edge of the screen. (origin-top, the
+            horizontal centre, floats it inboard by half the size difference and
+            opens a gap there.) With that origin a scale alone also grows
+            downward, so -translate-y-[8.5%] lifts it by the exact height the
+            scale added: 0.935 - 0.85 = 0.085 of the border box, and translate
+            percentages resolve against the untransformed border box, so the
+            figure's bottom edge lands where the 85% version's did. Net effect:
+            the bottom-left corner is the anchor and the artwork grows up and to
+            the right.
+
             Safe here because the reveal engine writes its inline transforms to
             the wrapper, never to this image. */}
         <div
@@ -134,7 +143,7 @@ export function Hero() {
             data-hero-portrait
             src={asset('hero-eyal.webp')}
             alt="מטלנט לסופר-טלנט"
-            className="mx-auto block h-auto w-full max-w-[420px] md:absolute md:bottom-[clamp(-608px,calc(-468px_-_(100vw_-_1600px)*0.47),-468px)] md:left-0 md:mx-0 md:w-[137.5%] md:max-w-[1133px] md:origin-top-left md:scale-[.85]"
+            className="mx-auto block h-auto w-full max-w-[420px] md:absolute md:bottom-[clamp(-608px,calc(-468px_-_(100vw_-_1600px)*0.47),-468px)] md:left-0 md:mx-0 md:w-[137.5%] md:max-w-[1133px] md:origin-top-left md:-translate-y-[8.5%] md:scale-[.935]"
           />
         </div>
       </div>
