@@ -76,9 +76,18 @@ export function Practice() {
           </div>
         </div>
 
-        <div className="relative order-first mx-2 max-h-[420px] min-h-[420px] self-stretch overflow-hidden md:order-none md:mx-0 md:max-h-none md:min-h-[720px] md:overflow-visible">
+        {/* data-reveal lives on the wrapper, NOT the image: the image relies on
+            static CSS transforms for its position (-translate-x-1/2 centring on
+            mobile, translate-x-[140px] on desktop) and the reveal engine writes
+            inline transforms — putting it on the image overwrote the offset
+            during the animation and restored it on completion, which read as
+            the image sliding in from the left and snapping right. On the
+            wrapper the reveal is a pure fade-and-rise. */}
+        <div
+          data-reveal
+          className="relative order-first mx-2 max-h-[420px] min-h-[420px] self-stretch overflow-hidden md:order-none md:mx-0 md:max-h-none md:min-h-[720px] md:overflow-visible"
+        >
           <img loading="lazy" decoding="async"
-            data-reveal
             src={asset('practice.webp')}
             alt="דגש על פרקטיקה"
             className="absolute bottom-0 left-1/2 block h-auto max-h-full w-[92%] -translate-x-1/2 object-contain object-bottom md:left-[60px] md:max-h-[calc(100%-40px)] md:w-[88%] md:translate-x-[140px] md:object-[left_bottom]"
