@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  @font-face { font-family:'Futurism'; src:url('fonts/Futurism-Light.woff2') format('woff2'),url('fonts/Futurism-Light.woff') format('woff'); font-weight:200 500; font-display:swap; }
+  @font-face { font-family:'Futurism'; src:url('fonts/Futurism-Bold.woff2') format('woff2'),url('fonts/Futurism-Bold.woff') format('woff'); font-weight:600 900; font-display:swap; }
+  @keyframes spinBorder { to { transform:rotate(360deg); } }
+  @keyframes flowX { from { left:-24%; } to { left:124%; } }
+  @keyframes flowY { from { top:-24%; } to { top:124%; } }
+  @keyframes pulseR { 0%{ left:48%; opacity:0; } 10%{ opacity:1; } 80%{ opacity:1; } 100%{ left:104%; opacity:0; } }
+  @keyframes pulseL { 0%{ left:34%; opacity:0; } 10%{ opacity:1; } 80%{ opacity:1; } 100%{ left:-22%; opacity:0; } }
+  @keyframes pulseD { 0%{ top:48%; opacity:0; } 10%{ opacity:1; } 80%{ opacity:1; } 100%{ top:104%; opacity:0; } }
+  @keyframes pulseU { 0%{ top:32%; opacity:0; } 10%{ opacity:1; } 80%{ opacity:1; } 100%{ top:-24%; opacity:0; } }
+  @keyframes spinSlow { to { transform:rotate(-360deg); } }
+  @keyframes bobArrow { 0%,100% { transform:translate(-50%,-58%); } 50% { transform:translate(-50%,-42%); } }
+  [data-spin] { animation:spinSlow 18s linear infinite; }
+  [data-bob] { animation:bobArrow 2.2s ease-in-out infinite; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#f6f5f3; font-family:'Futurism','Heebo',sans-serif; }
+  a { color:#1B1A1F; text-decoration:none; }
+  a:hover { color:#7659FF; }
+  h1,h2,h3,h4,p { margin:0; }
+  p, input, textarea { -webkit-text-stroke:0.35px currentColor; }
+  input, button, textarea { font-family:inherit; }
+  ::selection { background:#7374FB; color:#fff; }
+  [data-t-strip]::-webkit-scrollbar { display:none; }
+  @media (max-width: 1380px) {
+    [data-nav] { gap: 14px !important; font-size:16.9px !important; }
+  }
+  @media (max-width: 1180px) {
+    [data-nav] { display: none !important; }
+  }
+  @media (max-width: 900px) {
+    [data-hero-grid] { grid-template-columns: 1fr !important; gap: 28px !important; }
+    [data-hero-img] { min-height: 300px !important; order: 2; }
+    [data-hero-img] img { position: relative !important; bottom: auto !important; left: auto !important; width: 100% !important; max-width: 420px !important; margin: 0 auto; }
+    [data-cards2] { grid-template-columns: 1fr !important; }
+    [data-bento] { grid-template-columns: 1fr !important; }
+    [data-bento] > div { grid-column: span 1 !important; }
+    [data-tl-wrap] > div { grid-template-columns: 28px 1fr !important; }
+    [data-tl-wrap] [data-tl-bg], [data-tl-wrap] [data-tl-line] { left: 14px !important; }
+    [data-tl-wrap] > div > div:nth-child(1) { grid-column: 2 !important; grid-row: 1 !important; }
+    [data-tl-wrap] > div > div:nth-child(2) { grid-column: 1 !important; grid-row: 1 !important; }
+    [data-tl-wrap] > div > div:nth-child(3) { grid-column: 2 !important; grid-row: 1 !important; }
+  }
+  @media (max-width: 1200px) {
+    [data-hero-card] { position: static !important; max-width: none !important; margin: 24px 0 0 !important; z-index: 5 !important; box-shadow: none !important; }
+    [data-scroll-ind] { display: none !important; }
+  }
+  #contact input::placeholder { color: #FFFFFF; opacity: 1; }
+  br[data-brk] { display: none; }
+  @keyframes heroGradShift { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+  @media (max-width: 640px) {
+    header { top: 10px !important; padding: 0 12px !important; }
+    header img { height: 34px !important; }
+    header a { font-size: 12px !important; padding: 6px 12px !important; }
+    header > div { display: flex !important; justify-content: space-between !important; align-items: center !important; }
+    section[data-screen-label="Hero"] { padding: 112px 16px 40px !important; min-height: 0 !important; }
+    section[data-screen-label="Hero"]::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(90deg, #06B58D 0%, #42C5C6 25%, #6EB9F2 50%, #42C5C6 75%, #06B58D 100%); background-size: 300% 100%; animation: heroGradShift 9s ease-in-out infinite alternate; opacity: 1; -webkit-mask-image: radial-gradient(ellipse 100% 46% at 50% 68%, #000 25%, rgba(0,0,0,.55) 58%, transparent 84%); mask-image: radial-gradient(ellipse 100% 46% at 50% 68%, #000 25%, rgba(0,0,0,.55) 58%, transparent 84%); opacity: .6; }
+    section[data-screen-label="Hero"] > x-import { display: none !important; }
+    section[data-screen-label="Hero"] div[style*="90deg"] { display: none !important; }
+    section[data-screen-label="Hero"] > div[style*="70%"] { display: none !important; }
+    [data-hero-grid] { padding-top: 20px !important; gap: 18px !important; }
+    [data-hero-grid] > div:first-child { margin-top: 0 !important; }
+    [data-hero-grid] p br { display: none !important; }
+    [data-hero-grid] p { font-size: 24px !important; }
+    [data-hero-card] p { font-size: 22.5px !important; line-height: 1.3 !important; }
+    [data-hero-card] [data-gray] { font-size: 45.5px !important; }
+    #talents h2 { padding-top: .5em !important; padding-bottom: .5em !important; margin-bottom: 20px !important; }
+    #logos > div > p[data-reveal] { font-size: 30px !important; }
+    #logos { padding: 60px 0 !important; }
+    #numbers [data-t-strip] p { font-size: 30px !important; }
+    #numbers [data-t-strip] div[style*="font-weight"] { font-size: 24px !important; }
+    #numbers [data-t-strip] [data-gray] { font-size: 20px !important; }
+    #faq [data-gray][style*="padding"] { font-size: 25px !important; }
+    #contact p { font-size: 24px !important; }
+    [data-hero-card] { position: static !important; max-width: none !important; margin: 10px 0 0 !important; }
+    [data-scroll-ind] { display: none !important; }
+    #talents { padding: 0 14px !important; }
+    #talents > div { min-height: 0 !important; padding: 50px 0 50px !important; }
+    [data-cards2] { gap: 28px !important; padding-top: 20px !important; }
+    [data-cards2] > div:first-child { padding: 28px 20px !important; min-height: 0 !important; }
+    [data-cards2] > div:last-child > div { padding: 28px 20px !important; height: auto !important; position: static !important; }
+    [data-cards2] > div:last-child { overflow: hidden !important; }
+    [data-cards2] > div:last-child > div > x-import { height: 100% !important; top: 0 !important; }
+    [data-cards2] > div { min-height: 0 !important; }
+    [data-cards2] > div:last-child > div > x-import { height: 100% !important; }
+    [data-cards2] img { position: relative !important; inset: auto !important; width: 84.7% !important; max-width: 385px !important; margin: 0 auto 6px !important; display: block !important; transform: none !important; z-index: 3 !important; }
+    [data-cards2] h3, [data-cards2] p { text-align: center !important; width: 100% !important; position: relative !important; z-index: 2 !important; }
+    [data-cards2] [data-om-raster] { display: none !important; }
+    [data-cards2] > div:first-child, [data-cards2] > div:last-child > div { align-items: center !important; }
+    [data-cards2] > div { text-align: center !important; }
+    [data-cards2] [data-om-raster], [data-cards2] h3 + p { margin-inline: auto !important; }
+    [data-cards2] div[style*="border-radius:50%"] { margin-inline: auto !important; }
+    [data-cards2] p { font-size: 22.5px !important; }
+    section[data-screen-label="קריאה לפעולה"] { min-height: 0 !important; padding: 90px 16px 108px !important; }
+    section[data-screen-label="קריאה לפעולה"]::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse 62% 52% at 100% 22%, rgba(66,197,198,1) 0%, rgba(110,185,242,.65) 55%, transparent 84%), radial-gradient(ellipse 62% 52% at 0% 78%, rgba(6,181,141,1) 0%, rgba(66,197,198,.6) 55%, transparent 84%); }
+    #benefits { padding: 0 16px 70px !important; }
+    [data-bento] { gap: 16px !important; }
+    #benefits > div > h2 { line-height: .8em !important; padding-top: 1.2em !important; }
+    [data-bento] h3 { font-size: 27.5px !important; }
+    [data-bento] p { font-size: 22px !important; max-width: 100% !important; }
+    #process { padding: 24px 12px !important; }
+    #process > div { padding: 40px 14px 60px !important; }
+    [data-tl-wrap] p { font-size: 22.5px !important; }
+    #process h2 { font-size: 53px !important; }
+    #stations { padding: 70px 16px !important; }
+    #stations p { font-size: 22px !important; }
+    [data-bonus-wrap] { display: flex !important; flex-direction: column !important; gap: 10px !important; margin-top: 0 !important; }
+    [data-bonus-grid] > div[data-reveal-mode] > div { box-shadow: none !important; }
+    [data-bonus-wrap] > h3 { order: 2; font-size: 42.5px !important; margin-bottom: 0 !important; }
+    [data-bonus-wrap] > p { order: 3; margin-bottom: 30px !important; }
+    [data-bonus-wrap] { margin-top: 8px !important; }
+    [data-bonus-wrap] > div[data-reveal-early] { order: 6; }
+    div[data-reveal-early] a[data-magnet] { display: block !important; width: 100% !important; box-sizing: border-box !important; padding: 14px 20px !important; font-size: 23.8px !important; }
+    [data-bonus-grid] { display: contents !important; }
+    [data-bonus-grid] > div[data-reveal]:not([data-reveal-mode]) { order: 4; margin-bottom: 18px !important; min-height: 0 !important; padding: 22px 18px !important; justify-content: flex-start !important; }
+    [data-bonus-grid] > div[data-reveal]:not([data-reveal-mode]) [data-om-raster] { height: 60px !important; display: flex !important; align-items: center !important; justify-content: center !important; overflow: visible !important; margin: 0 auto 10px !important; }
+    [data-bonus-grid] > div[data-reveal]:not([data-reveal-mode]) [data-om-raster] svg { width: 55px !important; height: 55px !important; }
+    [data-bonus-wrap] > div[style*="246"] { opacity: .5 !important; }
+    [data-bonus-wrap] > x-import, [data-bonus-wrap] > div[style*="-8%"] { display: none !important; }
+    [data-bonus-wrap] { position: relative; }
+    [data-bonus-grid] > div[data-reveal-mode] { display: none !important; }
+    [data-bonus-grid] > div[data-reveal-mode] > div { width: 161px !important; height: 161px !important; border-radius: 24px !important; }
+    [data-bonus-grid] > div[data-reveal-mode] { margin: 0 auto !important; }
+    [data-bonus-grid] > div:not([data-reveal]) { display: none !important; }
+    [data-bonus-grid] > div[data-reveal] { padding: 28px 20px !important; }
+    [data-bonus-grid] > div[data-reveal-mode] { grid-row: auto !important; min-height: 320px !important; padding: 0 !important; }
+    #about { padding: 60px 18px !important; }
+    [data-about-img] { min-height: 0 !important; height: clamp(280px, 100vw, 440px) !important; justify-content: center !important; margin: 0 -18px !important; width: calc(100% + 36px) !important; }
+    #about > x-import { left: 50% !important; right: auto !important; width: 140% !important; transform: translateX(-50%) !important; -webkit-mask-image: radial-gradient(ellipse 62% 40% at 50% 26%, #000 0%, rgba(0,0,0,.7) 55%, transparent 82%); mask-image: radial-gradient(ellipse 62% 40% at 50% 26%, #000 0%, rgba(0,0,0,.7) 55%, transparent 82%); }
+    #about > div[style*="270deg"] { display: none !important; }
+    [data-about-img] img { width: 100% !important; height: 100% !important; max-width: none !important; object-fit: contain !important; right: 50% !important; transform: translateX(50%); }
+    #about p { font-size: 22.5px !important; }
+    #about a[data-magnet] { display: block !important; width: 100% !important; box-sizing: border-box !important; text-align: center !important; padding: 14px 20px !important; }
+    #about p br { display: none !important; }
+    #numbers { padding: 20px 16px 70px !important; }
+    #numbers h2 { margin-bottom: 16px !important; padding-bottom: 0 !important; }
+    #numbers [data-t-strip] div[style*="55px"] { font-size: 110px !important; }
+    #numbers [data-t-strip] > div { flex: 0 0 100% !important; min-width: 0 !important; }
+    #numbers button[aria-label] { width: 44px !important; height: 44px !important; }
+    #numbers button[aria-label="הקודם"] { right: -6px !important; }
+    #numbers button[aria-label="הבא"] { left: -6px !important; }
+    #faq { padding: 70px 16px 3em !important; }
+    [data-faq-grid] { grid-template-columns: 1fr !important; }
+    #faq button { font-size: 22px !important; }
+    [data-price-box] p { font-size: 24px !important; }
+    [data-price-box] > x-import { display: none !important; }
+    [data-price-box] > div[style*="radial"] { display: none !important; }
+    [data-price-box]::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(90deg, #06B58D 0%, #42C5C6 25%, #6EB9F2 50%, #42C5C6 75%, #06B58D 100%); background-size: 300% 100%; animation: heroGradShift 9s ease-in-out infinite alternate; opacity: .5; -webkit-mask-image: radial-gradient(ellipse 75% 55% at 0% 0%, #000 0%, rgba(0,0,0,.5) 45%, transparent 74%), radial-gradient(ellipse 75% 55% at 100% 100%, #000 0%, rgba(0,0,0,.5) 45%, transparent 74%); mask-image: radial-gradient(ellipse 75% 55% at 0% 0%, #000 0%, rgba(0,0,0,.5) 45%, transparent 74%), radial-gradient(ellipse 75% 55% at 100% 100%, #000 0%, rgba(0,0,0,.5) 45%, transparent 74%); }
+    [data-price-box] br { display: inline !important; }
+    [data-price-big] { font-size: 30px !important; }
+    #faq [data-letters] br { display: none !important; }
+    p[data-letters] { font-size: 27.5px !important; }
+    p[data-letters] span { font-size: inherit !important; }
+    p[data-letters] + p { font-size: 22px !important; }
+    [data-form-title] { white-space: normal !important; }
+    #contact { padding: 24px 12px !important; }
+    #contact > div { padding: 60px 16px !important; }
+    #contact input { font-size: 18px !important; }
+
+    a[data-magnet], #contact button[type="submit"] { font-size: 20.7px !important; padding: 10px 20px !important; border-radius: 999px !important; }
+    #contact form > div { display: block !important; }
+    #contact button[type="submit"] { display: block !important; width: 100% !important; box-sizing: border-box !important; padding: 14px 20px !important; }
+    #logos div[style*="rbLoop"] { animation-duration: 13s !important; }
+    section[data-screen-label="קריאה לפעולה"] a[data-magnet] { font-size: 26px !important; padding: 13px 26px !important; }
+    section[data-screen-label="קריאה לפעולה"] x-import { filter: saturate(2.2) brightness(1.1) contrast(1.15); -webkit-mask-image: radial-gradient(ellipse 80% 70% at 100% 30%, #000 0%, #000 55%, transparent 92%), radial-gradient(ellipse 80% 70% at 0% 70%, #000 0%, #000 55%, transparent 92%) !important; mask-image: radial-gradient(ellipse 80% 70% at 100% 30%, #000 0%, #000 55%, transparent 92%), radial-gradient(ellipse 80% 70% at 0% 70%, #000 0%, #000 55%, transparent 92%) !important; }
+    #logos div[style*="border-radius"] { width: 210px !important; height: 110px !important; padding: 22px 28px !important; border-radius: 18px !important; }
+    [data-tl-wrap] [data-tl-bg], [data-tl-wrap] [data-tl-line] { left: auto !important; right: 14px !important; transform: translateX(50%) !important; }
+    #process div[style*="max-width"] > p:first-child { font-size: 37.5px !important; line-height: .9em !important; }
+    #process div[style*="max-width"] > p:nth-child(2) { font-size: 22.5px !important; }
+    #stations div[style*="-webkit-text-stroke"] { font-size: 131px !important; }
+    #stations [data-reveal] > div[style*="space-between"]:first-child { height: 110px !important; align-items: flex-start !important; padding-top: 10px !important; }
+    #stations [data-reveal] > div[style*="space-between"]:first-child > div[style*="-webkit-text-stroke"] { margin-top: -14px !important; }
+    br[data-brk] { display: block !important; }
+    section[data-screen-label="Hero"] img[src*="HeroEle"] { display: none !important; }
+    [data-hero-grid] h1 { font-size: 69px !important; line-height: .8em !important; }
+    [data-hero-grid] h1 span { white-space: nowrap; }
+    #creativity-strip svg { transform: scale(2.55); transform-origin: center; }
+    #creativity-strip { padding: 34px 0 6px !important; position: relative; z-index: 6; background: #f6f5f3; margin-top: -48px !important; }
+    #creativity-strip [data-reveal] { margin: -28px 0 !important; }
+    section[data-screen-label="Hero"] { padding-bottom: 64px !important; }
+    [data-hero-grid] > div:first-child { text-align: center !important; align-items: center !important; }
+    [data-hero-grid] > div:first-child > div[data-reveal] { width: 100% !important; margin-top: 1.2em !important; padding-top: 1.2em !important; }
+    [data-hero-grid] a[data-magnet] { flex: 1 1 0 !important; max-width: 250px !important; text-align: center !important; }
+    [data-hero-grid] > div:first-child > div[data-reveal] { justify-content: center !important; }
+    section h2 { font-size: 42.5px !important; }
+    section[data-screen-label="קריאה לפעולה"] h2 { font-size: 48px !important; }
+    #why-now h3 { padding-top: 2.2em !important; }
+    [data-form-title] { font-size: 49px !important; line-height: .8em !important; }
+    #logos h3 { font-size: 42.5px !important; }
+    #stations h3 { font-size: 42.5px !important; }
+    [data-price-box] h3 { font-size: 42.5px !important; }
+    [data-cards2] h3 { font-size: 30px !important; }
+    #stations h4 { font-size: 27.5px !important; }
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script src="image-slot.js"></script>
+</helmet>
+
+<div style="direction:rtl;text-align:right;color:#1B1A1F;overflow-x:clip;overflow-y:visible;">
+
+  <!-- Header -->
+  <header style="position:fixed;top:16px;left:0;right:0;z-index:100;padding:0 clamp(16px,4.5vw,5em);">
+    <div style="width:100%;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;background:rgba(0,0,0,.78);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.16);border-radius:999px;padding:10px 14px 10px 14px;">
+      <img src="uploads/Logo-White.png" alt="dr. eyal doron" style="height:37px;display:block;justify-self:start;margin-right:12px;">
+      <nav data-nav="" style="display:flex;align-items:center;justify-content:center;gap:24px;font-size:19.4px;font-weight:400;white-space:nowrap;">
+        <a href="#talents" style="color:#FFFFFF;font-weight:500;" style-hover="color:#42C5C6">טלנטים וסופר-טלנטים</a>
+        <a href="#benefits" style="color:#FFFFFF;font-weight:500;" style-hover="color:#42C5C6">מה מקבלים</a>
+        <a href="#process" style="color:#FFFFFF;font-weight:500;" style-hover="color:#42C5C6">התהליך</a>
+        <a href="#stations" style="color:#FFFFFF;font-weight:500;" style-hover="color:#42C5C6">מה עוד חשוב לדעת</a>
+        <a href="#about" style="color:#FFFFFF;font-weight:500;" style-hover="color:#42C5C6">ד״ר אייל דורון</a>
+        <a href="#numbers" style="color:#FFFFFF;font-weight:500;" style-hover="color:#42C5C6">מספרים מהשטח</a>
+        <a href="#faq" style="color:#FFFFFF;font-weight:500;" style-hover="color:#42C5C6">שאלות</a>
+      </nav>
+      <a href="#contact" data-magnet="" style="display:inline-block;justify-self:end;background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);border:1.5px solid transparent;color:#FFFFFF;padding:12px 26px;border-radius:999px;font-weight:600;font-size:19.4px;transition:filter .3s ease,transform .3s ease;" style-hover="filter:brightness(1.12)">רוצים לשמוע עוד!</a>
+    </div>
+  </header>
+
+  <!-- 1 · Hero -->
+  <section data-screen-label="Hero" style="position:relative;z-index:5;overflow:hidden;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-start;padding:110px clamp(16px,4.5vw,5em) 30px 0;">
+    <x-import component="Aurora" from="./reactbits/Aurora.jsx" colors="#06B58D,#42C5C6,#6EB9F2" intensity="{{ auroraIntensity }}" hint-size="100%,100%" style="position:absolute;top:0;bottom:0;left:0;width:70%;"></x-import>
+    <div style="position:absolute;inset:0;pointer-events:none;z-index:1;">
+      <img src="uploads/HeroEle.png" alt="" style="position:absolute;top:0;bottom:0;left:0;width:52%;height:100%;object-fit:cover;">
+      <img src="uploads/HeroEle.png" alt="" style="position:absolute;top:0;bottom:0;left:0;width:52%;height:100%;object-fit:cover;">
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(246,245,242,0) 0%,rgba(246,245,242,0) 46%,rgba(246,245,242,.62) 60%,rgba(246,245,242,.9) 72%,#F6F5F2 100%);"></div>
+      <div style="position:absolute;top:0;left:0;right:0;height:150px;background:linear-gradient(180deg,rgba(246,245,242,.85) 20%,rgba(246,245,242,0) 100%);"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:240px;background:linear-gradient(180deg,rgba(246,245,243,0) 0%,rgba(246,245,243,.96) 70%,#f6f5f3 100%);"></div>
+    </div>
+    <div data-hero-grid="" style="position:relative;z-index:2;width:100%;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start;padding-top:12vh;">
+    <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-start;margin-top:-5vh;">
+      <h1 data-reveal="" style="margin-top:0;font-weight:700;font-size:clamp(40px,7.7vw,97px);line-height:1.3;background:linear-gradient(to left,#5b5b5a,#000000);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:.06em;">מטלנט <br data-brk=""><span style="background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);-webkit-background-clip:text;background-clip:text;color:transparent;">לסופר-טלנט</span></h1>
+      <p data-reveal="" style="margin-top:22px;font-size:clamp(19px,3vw,31.5px);line-height:1.3;color:#1B1A1F;font-weight:400;max-width:735px;text-wrap:pretty;">תהליך דיגיטלי-היברידי מיוחד לארגונים שמעניק יכולת <br>לחשוב אחרת וסט של כלי עבודה לחיים בעולם שלא מפסיק לרוץ.</p>
+      <p data-reveal="" style="margin-top:14px;font-size:clamp(18px,2.7vw,29px);line-height:1.3;color:#1B1A1F;max-width:693px;text-wrap:pretty;font-weight:400;">תהליך חווייתי ושיטתי שמזמין את משתתפיו לעשות את המעבר: <br>מטלנטים ל-<strong style="color: rgb(27, 26, 31);">סופר-טלנטים</strong>.</p>
+      <div data-reveal="" style="margin-top:2em;padding-top:2em;display:flex;gap:16px;flex-wrap:wrap;justify-content:flex-start;">
+        <a href="#contact" data-magnet="" style="display:inline-block;background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);border:1.5px solid transparent;color:#FFFFFF;padding:13px 28px;border-radius:999px;font-weight:600;font-size:20.4px;transition:filter .3s ease,transform .3s ease;" style-hover="filter:brightness(1.12);color:#fff">הצטרפו לתהליך</a>
+        <a href="#benefits" data-magnet="" style="display:inline-block;background:#F6F5F2;color:#1B1A1F;border:1.5px solid #1B1A1F;padding:13px 28px;border-radius:999px;font-weight:600;font-size:20.4px;transition:background .3s ease,color .3s ease;" style-hover="background:#1B1A1F;color:#fff">למידע נוסף</a>
+      </div>
+    </div>
+    <div data-hero-img="" data-reveal="" style="position:relative;align-self:stretch;display:flex;align-items:flex-end;justify-content:flex-start;min-height:420px;">
+      <img src="uploads/hero7.png" alt="מטלנט לסופר-טלנט" style="position:absolute;bottom:-468px;left:0;width:137.5%;max-width:1133px;height:auto;display:block;">
+    </div>
+    </div>
+    <div data-reveal="" data-hero-card="" style="position:absolute;z-index:3;left:clamp(60px,9vw,150px);bottom:clamp(55px,11vh,125px);max-width:580px;text-align:center;background:linear-gradient(160deg,rgba(255,255,255,.82) 0%,rgba(239,238,235,.72) 100%);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid #FFFFFF;border-radius:24px;padding:27px 31px;box-shadow:0 26px 60px rgba(20,19,24,.10);">
+      <p style="font-size:clamp(18px,1.5vw,20.5px);font-weight:700;color:#1B1A1F;line-height:1.3;">העולם זז מהר. משבר רודף משבר, בדרך לעוד שיבוש ועוד משבר. <br>המציאות החדשה בשתי מילים:</p>
+      <div data-gray="" style="margin-top:6px;font-weight:700;font-size:clamp(28px,3.6vw,52.5px);line-height:1.15;color:#595857;">"אין לדעת".</div>
+      <p style="margin-top:10px;font-size:clamp(17px,1.3vw,19.5px);line-height:1.3;color:#1B1A1F;text-wrap:pretty;font-weight:400;">צריך לפתח יכולת של גמישות מחשבתית, עבודה עם חוסר ודאות, <br>לפתח חשיבה יצירתית ולנקוט יוזמה, לדעת לחשוב ולפעול אחרת - לבד וביחד.</p>
+    </div>
+    <a href="#creativity-strip" data-scroll-ind="" data-reveal="" style="position:absolute;z-index:3;right:calc(clamp(30px,6vw,110px) - 15px);bottom:calc(clamp(24px,6vh,70px) + 15px);width:clamp(121px,11vw,165px);height:clamp(121px,11vw,165px);display:block;">
+      <img src="assets/scroll-circle.png" alt="" data-spin="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
+      <img src="assets/scroll-arrow.png" alt="התחילו כאן" data-bob="" style="position:absolute;left:50%;top:50%;width:34%;height:38%;transform:translate(-50%,-50%);object-fit:contain;">
+    </a>
+  </section>
+
+  <!-- Action in Creativity strip -->
+  <section id="creativity-strip" data-screen-label="Action in Creativity" style="padding:0;overflow:hidden;">
+    <div data-reveal=""><x-import component="CurvedLoop" from="./reactbits/CurvedLoop.jsx" text="Action in Creativity" font-size="94" curve="64" speed="{{ curveSpeed }}" height="170" hint-size="100%,170px"></x-import></div>
+  </section>
+
+  <!-- 2 · טלנטים וסופר-טלנטים -->
+  <section id="talents" data-screen-label="טלנטים וסופר-טלנטים" style="position:relative;z-index:2;padding:0 clamp(18px,6vw,8em) 0;">
+    <div style="width:100%;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:30px 0 90px;">
+      <div style="position:relative;border-radius:44px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 40px 110px rgba(20,19,24,.22),0 12px 40px rgba(20,19,24,.10);padding:clamp(20px,2.5vw,36px) clamp(28px,4vw,64px) clamp(40px,5vw,72px);background:#232227;color:#F2F1F5;">
+        <div style="position:relative;z-index:2;">
+      <h2 data-reveal="" style="font-weight: 700; font-size: clamp(34px,6.3vw,75px); line-height: 1.3; text-align: center; margin-bottom: 40px; padding-bottom: 1em; color: #FFFFFF">יש 2 סוגים של אנשים:</h2>
+      <div data-cards2="" style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch;">
+        <div data-reveal="" style="position:relative;background:linear-gradient(180deg,rgba(255,255,255,.045) 0%,rgba(255,255,255,0) 100%);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:40px 34px 40px 52%;text-align:right;display:flex;flex-direction:column;align-items:flex-start;min-height:360px;justify-content:center;">
+          <img src="uploads/talent-el.svg" alt="טלנט" style="position:absolute;top:-76px;left:1%;width:48.6%;height:auto;object-fit:contain;pointer-events:none;">
+          <div style="width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;margin-bottom:18px;" data-om-raster="true">{{ icTalent }}</div>
+          <h3 style="font-weight: 700; font-size:clamp(24px,3.3vw,40px); margin-bottom: 16px; color: #FFFFFF">טלנטים</h3>
+          <p style="font-size:21.3px; line-height:1.3; color: #FFFFFF; text-wrap: pretty">אלה שרצים על המשימות, עובדים קשה, משקיעים מאמץ ומצטיינים במגרש המוכר - המגרש שאחרים כבר הגדירו.</p>
+        </div>
+        <div data-reveal="" style="position:relative;border:1px solid rgba(255,255,255,.1);border-radius:24px;background:linear-gradient(180deg,#2B2A30 0%,rgba(43,42,48,0) 100%);">
+          <img src="uploads/super-el.svg" alt="סופר-טלנט" style="position:absolute;top:-86px;left:0;width:50.4%;height:auto;object-fit:contain;pointer-events:none;z-index:2;">
+          <div style="position:relative;background:transparent;color:#F2F1F5;border-radius:24px;padding:40px 34px 40px 52%;overflow:hidden;text-align:right;height:100%;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;">
+          <x-import component="Aurora" from="./reactbits/Aurora.jsx" colors="#06B58D,#42C5C6,#6EB9F2" intensity="1.53" hint-size="100%,100%" style="position:absolute;top:0;left:0;right:0;height:520px;pointer-events:none;"></x-import>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(35,34,39,.5),rgba(35,34,39,.78));pointer-events:none;"></div>
+          <div style="position:relative;z-index:1;width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;margin:0 0 18px auto;" data-om-raster="true">{{ icSuper }}</div>
+          <h3 style="position:relative;z-index:1;font-weight:800;font-size:clamp(24px,3.3vw,40px);margin-bottom:16px;color:#FFFFFF;">סופר-טלנטים</h3>
+          <p style="position: relative; z-index: 1; font-size:21.3px; line-height:1.3; color: #FFFFFF; text-wrap: pretty; font-weight: 400">אלה שעושים את כל זה ועוד משהו: <br>הם עוזרים לארגון להגדיר קטגוריה חדשה, לגלות מגרש חדש. <br><strong style="font-weight: 700;">הם אלה שעושים את ההבדל.</strong></p>
+          </div>
+        </div>
+      </div>
+      <div data-reveal="" style="text-align:center;margin-top:52px;">
+        <a href="#contact" data-magnet="" style="display:inline-block;background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);border:1.5px solid transparent;color:#FFFFFF;padding:16px 36px;border-radius:999px;font-weight:600;font-size:21.3px;transition:filter .3s ease,transform .3s ease;" style-hover="filter:brightness(1.12);color:#fff">אנחנו נתאים מסלול לצוות או לארגון שלכם</a>
+      </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2b · לוגואים -->
+  <section id="logos" data-screen-label="ארגונים שעברו את התהליך" style="position:relative;z-index:1;padding:0 0 52px;">
+    <x-import component="Aurora" from="./reactbits/Aurora.jsx" colors="#06B58D,#42C5C6,#6EB9F2" intensity="0.70" fade-edges="true" hint-size="100%,100%" style="position:absolute;top:0;left:0;right:0;height:520px;pointer-events:none;"></x-import>
+    <div style="position:absolute;top:0;left:0;right:0;height:520px;background:linear-gradient(180deg,#f6f5f3 0%,#f6f5f3 6%,rgba(246,245,243,.76) 24%,rgba(246,245,243,.56) 50%,rgba(246,245,243,.76) 76%,#f6f5f3 94%,#f6f5f3 100%);pointer-events:none;"></div>
+    <div style="position:relative;z-index:1;width:100%;text-align:center;">
+      <p data-reveal="" style="text-align:center;font-size:clamp(24px,3.3vw,40px);font-weight:700;color:#1B1A1F;margin:0 0 48px;">ארגונים שעברו את התהליך הזה, <br data-brk="">בארץ ובעולם:</p>
+      <div data-reveal="" data-no-blur=""><x-import component="LogoLoop" from="./reactbits/LogoLoop.jsx" gap="40" duration="{{ marqueeDuration }}" hint-size="100%,156px">
+        <div style="width:300px;height:156px;flex:0 0 auto;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:24px;padding:32px 42px;"><img src="assets/logos/logo-nestle.png" alt="נסטלה" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+        <div style="width:300px;height:156px;flex:0 0 auto;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:24px;padding:32px 42px;"><img src="assets/logos/logo-matrix.png" alt="מטריקס" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+        <div style="width:300px;height:156px;flex:0 0 auto;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:24px;padding:32px 42px;"><img src="assets/logos/logo-babcom.png" alt="באבקום" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+        <div style="width:300px;height:156px;flex:0 0 auto;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:24px;padding:32px 42px;"><img src="assets/logos/logo-movement.png" alt="מובמנט" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+      </x-import>
+      <div style="height:28px;"></div>
+      <x-import component="LogoLoop" from="./reactbits/LogoLoop.jsx" gap="40" duration="{{ marqueeDuration }}" reverse="true" hint-size="100%,156px">
+        <div style="width:300px;height:156px;flex:0 0 auto;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:24px;padding:32px 42px;"><img src="assets/logos/logo-bezeq.png" alt="בזק" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+        <div style="width:300px;height:156px;flex:0 0 auto;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:24px;padding:32px 42px;"><img src="assets/logos/logo-bluebird.png" alt="בלובירד" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+        <div style="width:300px;height:156px;flex:0 0 auto;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:24px;padding:32px 42px;"><img src="assets/logos/logo-cibus.png" alt="סיבו" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+        <div style="width:300px;height:156px;flex:0 0 auto;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:24px;padding:32px 42px;"><img src="assets/logos/logo-lusha.png" alt="לושה" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+      </x-import></div>
+    </div>
+    <div id="why-now" style="position:relative;z-index:1;width:100%;">
+      <div style="max-width:1100px;margin:0 auto;text-align:center;">
+        <h3 data-reveal="" style="font-weight: 700; font-size:clamp(34px,6.3vw,75px); padding-top:1.5em; margin-bottom: 22px; background:linear-gradient(to left,#5b5b5a,#000000);-webkit-background-clip:text;background-clip:text;color:transparent">למה עכשיו?</h3>
+        <p data-reveal="" style="font-size:25px; line-height:1.3; color: #1B1A1F; text-wrap: pretty; padding-bottom: 1em">עולם העבודה עובר שינוי מטלטל - עלינו לחשוב כיצד להגיב ולאמץ שפה וגישה אחרת לשגרה של משברים. <br>הקורס הזה נועד לאפשר לאנשים לעשות את המעבר המחשבתי הזה בצורה מוחשית, מעשית ומעצימה.</p>
+      </div>
+    </div>
+    <div style="position:relative;height:74vh;min-height:540px;margin-top:30px;">
+      <x-import component="DomeGallery" from="./reactbits/DomeGallery.jsx" images="{{ domeImages }}" fit="0.75" min-radius="480" segments="14" drag-dampening="1.8" auto-rotate="2.4" grayscale="{{ false }}" overlay-blur-color="#F6F5F2" hint-size="100%,600px"></x-import>
+    </div>
+  </section>
+
+  <!-- CTA · גם אנחנו רוצים -->
+  <section data-screen-label="קריאה לפעולה" style="position:relative;overflow:hidden;padding:130px clamp(18px,6vw,8em);min-height:100vh;display:flex;align-items:center;justify-content:center;">
+    <x-import component="Aurora" from="./reactbits/Aurora.jsx" colors="#06B58D,#42C5C6,#6EB9F2" intensity="1.93" hint-size="100%,100%" style="position:absolute;inset:0;-webkit-mask-image:radial-gradient(ellipse 62% 72% at 82% 18%, #000 0%, rgba(0,0,0,.55) 45%, transparent 78%),radial-gradient(ellipse 62% 72% at 18% 82%, #000 0%, rgba(0,0,0,.55) 45%, transparent 78%);mask-image:radial-gradient(ellipse 62% 72% at 82% 18%, #000 0%, rgba(0,0,0,.55) 45%, transparent 78%),radial-gradient(ellipse 62% 72% at 18% 82%, #000 0%, rgba(0,0,0,.55) 45%, transparent 78%);"></x-import>
+    <div style="position:absolute;inset:0;pointer-events:none;z-index:1;">
+      <img src="uploads/HeroEle.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+      <img src="uploads/HeroEle.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(246,245,243,0) 0%,rgba(246,245,243,.35) 18%,rgba(246,245,243,.88) 30%,#f6f5f3 38%,#f6f5f3 62%,rgba(246,245,243,.88) 70%,rgba(246,245,243,.35) 82%,rgba(246,245,243,0) 100%);"></div>
+      <div style="position:absolute;top:0;left:0;right:0;height:280px;background:linear-gradient(180deg,#f6f5f3 0%,rgba(246,245,243,.55) 40%,rgba(246,245,243,0) 100%);"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:280px;background:linear-gradient(0deg,#f6f5f3 0%,rgba(246,245,243,.55) 40%,rgba(246,245,243,0) 100%);"></div>
+    </div>
+    <div style="position:relative;z-index:2;width:100%;text-align:center;">
+      <h2 data-reveal="" style="font-weight:700;font-size:clamp(38px,7.5vw,95px);line-height:0.92;background:linear-gradient(to left,#5b5b5a,#000000);-webkit-background-clip:text;background-clip:text;color:transparent;text-wrap:pretty;">גם אנחנו רוצים להפוך <br><span style="">לסופר-טלנטים!</span></h2>
+      <div data-reveal="" style="margin-top:44px;">
+        <a href="#contact" data-magnet="" style="display:inline-block;background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);border:1.5px solid transparent;color:#FFFFFF;padding:19px 48px;border-radius:999px;font-weight:600;font-size:23.8px;transition:filter .3s ease,transform .3s ease;" style-hover="filter:brightness(1.12);color:#fff">רוצים לשמוע עוד!</a>
+        <p style="margin-top: 16px; font-size:22.5px; color: #1B1A1F">שיחה קצרה, בלי התחייבות</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · מה מקבלים -->
+  <section id="benefits" data-screen-label="מה מקבלים משתתפי הקורס" style="position:relative;padding:0 clamp(28px,9.4vw,12.5em) 100px;">
+    <div style="width:100%;">
+      <h2 data-reveal="" style="font-weight:700;font-size:clamp(34px,6.3vw,75px);line-height:1.3;margin-bottom:52px;text-align:center;background:linear-gradient(to left,#5b5b5a,#000000);-webkit-background-clip:text;background-clip:text;color:transparent;">מה מקבלים <br data-brk="">משתתפי הקורס</h2>
+      <div data-bento="" style="display:grid;grid-template-columns:repeat(6,1fr);gap:22px;">
+        <div data-reveal="" style="grid-column:span 4;position:relative;overflow:hidden;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;box-shadow:0 12px 34px rgba(20,19,24,.07);border-radius:26px;padding:40px 36px;min-height:230px;display:flex;flex-direction:column;padding-bottom:90px;transition:transform .35s ease,box-shadow .35s ease;" style-hover="transform:translateY(-6px)">
+          <div style="position:absolute;bottom:-30px;left:-16px;opacity:.45;pointer-events:none;transform:rotate(-8deg);" data-om-raster="true">{{ icAimBig }}</div>
+          <h3 style="position:relative;z-index:1;font-weight:700;font-size:28.8px;margin-bottom:12px;">דיוק עצמי</h3>
+          <p data-gray="" style="position:relative;z-index:1;font-size:20.6px;line-height:1.3;color:#595857;text-wrap:pretty;max-width:75%;">היכולת לבחור מה חשוב ובמה להתמקד, לפתח חשיבה ביקורתית ובהירות מחשבתית. להגדיר את ה-מטרה האחת, את ה-מכשול האחד. לנקות את ה'רעש' ואת כל מה שחייב לרדת מהשולחן.</p>
+        </div>
+        <div data-reveal="" style="grid-column:span 2;position:relative;overflow:hidden;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:26px;padding:40px 36px;min-height:230px;display:flex;flex-direction:column;padding-bottom:90px;transition:transform .35s ease,box-shadow .35s ease;" style-hover="transform:translateY(-6px)">
+          <div style="position:absolute;bottom:-30px;left:-16px;opacity:.45;pointer-events:none;transform:rotate(-8deg);" data-om-raster="true">{{ icFlexBig }}</div>
+          <h3 style="position:relative;z-index:1;font-weight:700;font-size:28.8px;margin-bottom:12px;">גמישות מחשבתית</h3>
+          <p data-gray="" style="position:relative;z-index:1;font-size:20.6px;line-height:1.3;color:#595857;text-wrap:pretty;max-width:100%;">לדעת לחשוב במהירות על אפשרויות פעולה אחרות וחדשות, לחתור תחת הנחות יסוד מקובלות, לגלות חיבורים חדשים ואפשרויות חדשות שלא חשבו עליהם עדיין, לדעת לאלתר.</p>
+        </div>
+        <div data-reveal="" style="grid-column:span 2;position:relative;overflow:hidden;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:26px;padding:40px 36px;min-height:230px;display:flex;flex-direction:column;padding-bottom:90px;transition:transform .35s ease,box-shadow .35s ease;" style-hover="transform:translateY(-6px)">
+          <div style="position:absolute;bottom:-30px;left:-16px;opacity:.45;pointer-events:none;transform:rotate(-8deg);" data-om-raster="true">{{ icToolsBig }}</div>
+          <h3 style="position:relative;z-index:1;font-weight:700;font-size:28.8px;margin-bottom:12px;">כלים מעשיים ליישום מיידי</h3>
+          <p data-gray="" style="position:relative;z-index:1;font-size:20.6px;line-height:1.3;color:#595857;text-wrap:pretty;max-width:100%;">כלים של חשיבה יצירתית לפתרון בעיות, ניהול זמן ועבודה בקבוצה.</p>
+        </div>
+        <div data-reveal="" style="grid-column:span 2;position:relative;overflow:hidden;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:26px;padding:40px 36px;min-height:230px;display:flex;flex-direction:column;padding-bottom:90px;transition:transform .35s ease,box-shadow .35s ease;" style-hover="transform:translateY(-6px)">
+          <div style="position:absolute;bottom:-30px;left:-16px;opacity:.45;pointer-events:none;transform:rotate(-8deg);" data-om-raster="true">{{ icLinkBig }}</div>
+          <h3 style="position:relative;z-index:1;font-weight:700;font-size:28.8px;margin-bottom:12px;">תחושת חיבור ומשמעות</h3>
+          <p data-gray="" style="position:relative;z-index:1;font-size:20.6px;line-height:1.3;color:#595857;text-wrap:pretty;max-width:100%;">היכולת להבין את המקום שלי ואת ה-דבר שאני מחובר אליו ומתמסר לו ביום יום שלי בארגון.</p>
+        </div>
+        <div data-reveal="" style="grid-column:span 2;position:relative;overflow:hidden;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:26px;padding:40px 36px;min-height:230px;display:flex;flex-direction:column;padding-bottom:90px;transition:transform .35s ease,box-shadow .35s ease;" style-hover="transform:translateY(-6px)">
+          <div style="position:absolute;bottom:-30px;left:-16px;opacity:.45;pointer-events:none;transform:rotate(-8deg);" data-om-raster="true">{{ icSparkBig }}</div>
+          <h3 style="position:relative;z-index:1;font-weight:700;font-size:28.8px;margin-bottom:12px;">יוזמה ואחריות</h3>
+          <p data-gray="" style="position:relative;z-index:1;font-size:20.6px;line-height:1.3;color:#595857;text-wrap:pretty;max-width:100%;">עירנות ותחושת חירום, לנקוט יוזמה כשצריך ולהגיב במהירות כשצריך.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · התהליך (dark) -->
+  <section id="process" data-screen-label="התהליך" style="padding:40px clamp(16px,4.5vw,5em);">
+    <div style="position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:#232227;color:#F2F1F5;padding:50px 28px 100px;border-radius:40px;">
+    <x-import component="Aurora" from="./reactbits/Aurora.jsx" colors="#06B58D,#42C5C6,#6EB9F2" intensity="0.60" hint-size="100%,100%" style="position:absolute;inset:0;"></x-import>
+    <div style="position:relative;z-index:2;width:100%;">
+      <h2 data-reveal="" style="font-weight:700;font-size:clamp(34px,6.3vw,75px);line-height:1.3;text-align:center;margin-bottom:56px;">התהליך</h2>
+      <div data-tl-wrap="" style="position:relative;max-width:980px;margin:0 auto;padding:10px 0;">
+        <div data-tl-bg="" style="position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);width:3px;border-radius:99px;background:rgba(255,255,255,.1);"></div>
+        <div data-tl-line="" style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:3px;height:0%;border-radius:99px;background:linear-gradient(180deg,#6EB9F2,#42C5C6,#06B58D);box-shadow:0 0 14px rgba(66,197,198,.55);"></div>
+        <div style="display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;gap:0 18px;margin-bottom:34px;">
+          <div><div data-reveal="" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px 26px;backdrop-filter:blur(6px);"><p style="font-size:26px;line-height:1.3;color:#FFFFFF;text-wrap:pretty;">התהליך בנוי משתי יחידות לימוד מרכזיות: דיוק עצמי וגמישות מחשבתית: ניגודים משלימים שיוצרים יחד <strong style="color:#FFFFFF;">חשיבה יצירתית מרמה אחרת.</strong></p></div></div>
+          <div style="display:flex;align-items:center;justify-content:center;"><div data-tl-dot="" style="width:20px;height:20px;border-radius:50%;background:#3A3844;transition:background .4s ease,box-shadow .4s ease,transform .4s ease;"></div></div>
+          <div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;gap:0 18px;margin-bottom:34px;">
+          <div></div>
+          <div style="display:flex;align-items:center;justify-content:center;"><div data-tl-dot="" style="width:20px;height:20px;border-radius:50%;background:#3A3844;transition:background .4s ease,box-shadow .4s ease,transform .4s ease;"></div></div>
+          <div><div data-reveal="" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px 26px;backdrop-filter:blur(6px);"><p style="font-size:26px;line-height:1.3;color:#FFFFFF;text-wrap:pretty;">בכל יום נחשפים המשתתפים לכלי חדש ליישום מול אתגרים שוטפים שלהם.</p></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;gap:0 18px;margin-bottom:34px;">
+          <div><div data-reveal="" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px 26px;backdrop-filter:blur(6px);"><p style="font-size:26px;line-height:1.3;color:#FFFFFF;text-wrap:pretty;">מנחה מלווה עוקב אחרי ההתקדמות וההפנמה של המשתתפים.</p></div></div>
+          <div style="display:flex;align-items:center;justify-content:center;"><div data-tl-dot="" style="width:20px;height:20px;border-radius:50%;background:#3A3844;transition:background .4s ease,box-shadow .4s ease,transform .4s ease;"></div></div>
+          <div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;gap:0 18px;margin-bottom:34px;">
+          <div></div>
+          <div style="display:flex;align-items:center;justify-content:center;"><div data-tl-dot="" style="width:20px;height:20px;border-radius:50%;background:#3A3844;transition:background .4s ease,box-shadow .4s ease,transform .4s ease;"></div></div>
+          <div><div data-reveal="" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px 26px;backdrop-filter:blur(6px);"><p style="font-size:26px;line-height:1.3;color:#FFFFFF;text-wrap:pretty;">וובינרים מיוחדים מוקדשים לבירור שאלות וקשיים שהתעוררו.</p></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;gap:0 18px;margin-bottom:34px;">
+          <div><div data-reveal="" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px 26px;backdrop-filter:blur(6px);"><p style="font-size:26px;line-height:1.3;color:#FFFFFF;text-wrap:pretty;">ביקורים מיוחדים של הצוות בשטח מוודא הבנה, חיבור והשתתפות.</p></div></div>
+          <div style="display:flex;align-items:center;justify-content:center;"><div data-tl-dot="" style="width:20px;height:20px;border-radius:50%;background:#3A3844;transition:background .4s ease,box-shadow .4s ease,transform .4s ease;"></div></div>
+          <div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;gap:0 18px;margin-bottom:34px;">
+          <div></div>
+          <div style="display:flex;align-items:center;justify-content:center;"><div data-tl-dot="" style="width:20px;height:20px;border-radius:50%;background:#3A3844;transition:background .4s ease,box-shadow .4s ease,transform .4s ease;"></div></div>
+          <div><div data-reveal="" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px 26px;backdrop-filter:blur(6px);"><p style="font-size:26px;line-height:1.3;color:#FFFFFF;text-wrap:pretty;">סדנת סיום חגיגית מהווה רגע של שיא שבו הכל מתחבר.</p></div></div>
+        </div>
+      </div>
+      <div data-reveal="" style="height:2px;max-width:520px;margin:56px auto;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35) 20%,rgba(255,255,255,.35) 80%,transparent);"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:18px;max-width:900px;margin:0 auto;text-align:center;">
+        <p data-reveal="" style="font-size:clamp(24px,3.8vw,47.5px);font-weight:700;line-height:1.3;color:#FFFFFF;text-wrap:pretty;">התהליך משלב עבודה אישית ועבודה עם אחרים.</p>
+        <p data-reveal="" style="font-size:clamp(18px,2.4vw,25px);font-weight:400;line-height:1.3;color:#D9D7E2;text-wrap:pretty;">התהליך יוצר שפה ארגונית משותפת: אנשים מתחילים "לדבר על זה במסדרון" ומשתמשים במשפטי המפתח ו- במושגים החדשים במהלך פגישות החשיבה.</p>
+        <div data-reveal="" style="margin-top:14px;">
+          <a href="#contact" data-magnet="" style="display:inline-block;background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);border:1.5px solid transparent;color:#FFFFFF;padding:15px 38px;border-radius:999px;font-weight:600;font-size:20.6px;transition:filter .3s ease,transform .3s ease;" style-hover="filter:brightness(1.12);color:#fff">רוצים לשמוע עוד!</a>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- 5 · מה עוד חשוב לדעת -->
+  <section id="stations" data-screen-label="מה עוד חשוב לדעת" style="padding:100px clamp(18px,6vw,8em);">
+    <div style="width:100%;">
+      <h2 data-reveal="" style="font-weight:700;font-size:clamp(34px,6.3vw,75px);line-height:1.3;text-align:center;margin-bottom:64px;background:linear-gradient(to left,#5b5b5a,#000000);-webkit-background-clip:text;background-clip:text;color:transparent;">מה עוד חשוב לדעת</h2>
+      <div style="position:relative;width:100%;padding-bottom:4em;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px;align-items:stretch;">
+        <div data-reveal="" style="position:relative;overflow:hidden;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:26px;min-height:329px;padding:0 clamp(18px,2.6vw,40px) clamp(24px,2.6vw,34px);display:flex;flex-direction:column;">
+          <div style="position:relative;height:160px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:clamp(84px,11vw,150px);line-height:1;font-weight:700;color:transparent;-webkit-text-stroke:1.25px rgba(66,197,198,.35);letter-spacing:-.02em;pointer-events:none;-webkit-mask-image:linear-gradient(180deg,#000 25%,transparent 95%);mask-image:linear-gradient(180deg,#000 25%,transparent 95%);">01</div>
+            <div style="position:absolute;top:24px;left:calc(24px - clamp(18px,2.6vw,40px));display:flex;align-items:center;justify-content:center;width:58px;height:58px;">
+              <div style="position:relative;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#06B58D,#42C5C6 55%,#6EB9F2);display:flex;align-items:center;justify-content:center;" data-om-raster="true">{{ icClockW }}</div>
+            </div>
+          </div>
+          <div style="margin-top:auto;position:relative;z-index:1;text-align:start;">
+            <h4 style="font-weight:700;font-size:clamp(22px,2.6vw,32px);line-height:1.25;margin-bottom:12px;color:#000000;">שיעור יומי</h4>
+            <p data-gray="" style="font-size:21px;line-height:1.4;color:#595857;font-weight:500;text-wrap:pretty;">שיעורים יומיים מושקעים וסוחפים, עד עשר דקות ביום, לא יותר. סרטונים קצרים ומתומצתים שמעוררים חשיבה ומניעים לפעולה.</p>
+          </div>
+          <div style="position:absolute;left:-132px;bottom:-154px;width:462px;height:374px;border-radius:50%;background:radial-gradient(circle,rgba(66,197,198,.141) 0%,rgba(110,185,242,.07) 45%,rgba(255,255,255,0) 74%);filter:blur(6px);pointer-events:none;"></div>
+        </div>
+        <div data-reveal="" style="position:relative;overflow:hidden;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:26px;min-height:329px;padding:0 clamp(18px,2.6vw,40px) clamp(24px,2.6vw,34px);display:flex;flex-direction:column;">
+          <div style="position:relative;height:160px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:clamp(84px,11vw,150px);line-height:1;font-weight:700;color:transparent;-webkit-text-stroke:1.25px rgba(66,197,198,.35);letter-spacing:-.02em;pointer-events:none;-webkit-mask-image:linear-gradient(180deg,#000 25%,transparent 95%);mask-image:linear-gradient(180deg,#000 25%,transparent 95%);">02</div>
+            <div style="position:absolute;top:24px;left:calc(24px - clamp(18px,2.6vw,40px));display:flex;align-items:center;justify-content:center;width:58px;height:58px;">
+              <div style="position:relative;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#06B58D,#42C5C6 55%,#6EB9F2);display:flex;align-items:center;justify-content:center;" data-om-raster="true">{{ icChatW }}</div>
+            </div>
+          </div>
+          <div style="margin-top:auto;position:relative;z-index:1;text-align:start;">
+            <h4 style="font-weight:700;font-size:clamp(22px,2.6vw,32px);line-height:1.25;margin-bottom:12px;color:#000000;">קבוצת ווטסאפ</h4>
+            <p data-gray="" style="font-size:21px;line-height:1.4;color:#595857;font-weight:500;text-wrap:pretty;">קבוצת ווטסאפ מיוחדת המשותפת לכל הקבוצה, שבה נמשכת השיחה בין המפגשים ונוצרת שפה ארגונית חדשה.</p>
+          </div>
+          <div style="position:absolute;left:-132px;bottom:-154px;width:462px;height:374px;border-radius:50%;background:radial-gradient(circle,rgba(66,197,198,.141) 0%,rgba(110,185,242,.07) 45%,rgba(255,255,255,0) 74%);filter:blur(6px);pointer-events:none;"></div>
+        </div>
+        <div data-reveal="" style="position:relative;overflow:hidden;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:26px;min-height:329px;padding:0 clamp(18px,2.6vw,40px) clamp(24px,2.6vw,34px);display:flex;flex-direction:column;">
+          <div style="position:relative;height:160px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:clamp(84px,11vw,150px);line-height:1;font-weight:700;color:transparent;-webkit-text-stroke:1.25px rgba(66,197,198,.35);letter-spacing:-.02em;pointer-events:none;-webkit-mask-image:linear-gradient(180deg,#000 25%,transparent 95%);mask-image:linear-gradient(180deg,#000 25%,transparent 95%);">03</div>
+            <div style="position:absolute;top:24px;left:calc(24px - clamp(18px,2.6vw,40px));display:flex;align-items:center;justify-content:center;width:58px;height:58px;">
+              <div style="position:relative;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#06B58D,#42C5C6 55%,#6EB9F2);display:flex;align-items:center;justify-content:center;" data-om-raster="true">{{ icPinW }}</div>
+            </div>
+          </div>
+          <div style="margin-top:auto;position:relative;z-index:1;text-align:start;">
+            <h4 style="font-weight:700;font-size:clamp(22px,2.6vw,32px);line-height:1.25;margin-bottom:12px;color:#000000;">ליווי בשטח</h4>
+            <p data-gray="" style="font-size:21px;line-height:1.4;color:#595857;font-weight:500;text-wrap:pretty;">ביקורים בשטח של מנחים מלווים ואלמנטים עיצוביים במרחב העבודה, שעוזרים לתהליך ההטמעה להישאר נוכח ביום-יום.</p>
+          </div>
+          <div style="position:absolute;left:-132px;bottom:-154px;width:462px;height:374px;border-radius:50%;background:radial-gradient(circle,rgba(66,197,198,.141) 0%,rgba(110,185,242,.07) 45%,rgba(255,255,255,0) 74%);filter:blur(6px);pointer-events:none;"></div>
+        </div>
+        </div>
+      </div>
+      <div data-reveal="" data-bonus-wrap="" style="position:relative;max-width:1280px;margin:80px auto 0;">
+<x-import component="Aurora" from="./reactbits/Aurora.jsx" colors="#06B58D,#42C5C6,#6EB9F2" intensity="0.64" fade-edges="true" hint-size="100%,100%" style="position:absolute;top:-8%;bottom:-8%;left:50%;transform:translateX(-50%);width:100vw;z-index:0;pointer-events:none;"></x-import>
+<div style="position:absolute;top:-8%;bottom:-8%;left:50%;transform:translateX(-50%);width:100vw;z-index:0;pointer-events:none;background:linear-gradient(180deg,#f6f5f3 0%,rgba(246,245,243,.42) 20%,rgba(246,245,243,.2) 50%,rgba(246,245,243,.42) 80%,#f6f5f3 100%);"></div>
+<h3 style="position:relative;z-index:1;font-weight:700;font-size:clamp(34px,6.3vw,75px);line-height:1.3;margin-bottom:10px;text-align:center;background:linear-gradient(to left,#5b5b5a,#000000);-webkit-background-clip:text;background-clip:text;color:transparent;">מה עוד מקבלים</h3>
+<p data-gray="" style="position:relative;z-index:1;font-size:clamp(21px,2.2vw,26px);font-weight:600;color:#595857;margin-bottom:56px;text-align:center;">השראה ובונוסים לאורך כל הדרך:</p>
+<div data-bonus-grid="" style="position:relative;display:grid;grid-template-columns:1fr minmax(300px,380px) 1fr;grid-template-rows:1fr 1fr;gap:56px 84px;align-items:stretch;">
+<div style="position:absolute;top:calc(16% - 14px);left:0;right:0;height:1px;z-index:0;background:rgba(66,197,198,.42);overflow:hidden;"><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseR 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseL 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div></div>
+<div style="position:absolute;top:calc(25% - 14px);left:0;right:0;height:1px;z-index:0;background:rgba(66,197,198,.42);overflow:hidden;"><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseR 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseL 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div></div>
+<div style="position:absolute;top:calc(34% - 14px);left:0;right:0;height:1px;z-index:0;background:rgba(66,197,198,.42);overflow:hidden;"><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseR 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseL 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div></div>
+<div style="position:absolute;top:calc(66% + 14px);left:0;right:0;height:1px;z-index:0;background:rgba(66,197,198,.42);overflow:hidden;"><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseR 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseL 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div></div>
+<div style="position:absolute;top:calc(75% + 14px);left:0;right:0;height:1px;z-index:0;background:rgba(66,197,198,.42);overflow:hidden;"><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseR 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseL 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div></div>
+<div style="position:absolute;top:calc(84% + 14px);left:0;right:0;height:1px;z-index:0;background:rgba(66,197,198,.42);overflow:hidden;"><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseR 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div><div style="position:absolute;top:0;height:1px;width:18%;border-radius:99px;background:linear-gradient(90deg,rgba(66,197,198,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(66,197,198,1),0 0 40px rgba(66,197,198,.75);animation:pulseL 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div></div>
+<div style="position:absolute;left:7%;top:0;bottom:0;width:1px;z-index:0;background:rgba(110,185,242,.40);overflow:hidden;"><div style="position:absolute;left:0;width:1px;height:20%;border-radius:99px;background:linear-gradient(180deg,rgba(6,181,141,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(6,181,141,1),0 0 40px rgba(6,181,141,.75);animation:pulseD 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div><div style="position:absolute;left:0;width:1px;height:20%;border-radius:99px;background:linear-gradient(180deg,rgba(6,181,141,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(6,181,141,1),0 0 40px rgba(6,181,141,.75);animation:pulseU 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div></div>
+<div style="position:absolute;left:13%;top:0;bottom:0;width:1px;z-index:0;background:rgba(110,185,242,.40);overflow:hidden;"><div style="position:absolute;left:0;width:1px;height:20%;border-radius:99px;background:linear-gradient(180deg,rgba(6,181,141,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(6,181,141,1),0 0 40px rgba(6,181,141,.75);animation:pulseD 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div><div style="position:absolute;left:0;width:1px;height:20%;border-radius:99px;background:linear-gradient(180deg,rgba(6,181,141,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(6,181,141,1),0 0 40px rgba(6,181,141,.75);animation:pulseU 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div></div>
+<div style="position:absolute;left:87%;top:0;bottom:0;width:1px;z-index:0;background:rgba(110,185,242,.40);overflow:hidden;"><div style="position:absolute;left:0;width:1px;height:20%;border-radius:99px;background:linear-gradient(180deg,rgba(6,181,141,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(6,181,141,1),0 0 40px rgba(6,181,141,.75);animation:pulseD 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div><div style="position:absolute;left:0;width:1px;height:20%;border-radius:99px;background:linear-gradient(180deg,rgba(6,181,141,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(6,181,141,1),0 0 40px rgba(6,181,141,.75);animation:pulseU 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div></div>
+<div style="position:absolute;left:93%;top:0;bottom:0;width:1px;z-index:0;background:rgba(110,185,242,.40);overflow:hidden;"><div style="position:absolute;left:0;width:1px;height:20%;border-radius:99px;background:linear-gradient(180deg,rgba(6,181,141,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(6,181,141,1),0 0 40px rgba(6,181,141,.75);animation:pulseD 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div><div style="position:absolute;left:0;width:1px;height:20%;border-radius:99px;background:linear-gradient(180deg,rgba(6,181,141,0),#06B58D 35%,#42C5C6 50%,#6EB9F2 65%,rgba(110,185,242,0));box-shadow:0 0 18px rgba(6,181,141,1),0 0 40px rgba(6,181,141,.75);animation:pulseU 3.4s cubic-bezier(.4,0,.6,1) infinite;"></div></div>
+<div style="position:relative;z-index:1;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;box-shadow:0 12px 34px rgba(20,19,24,.07);border-radius:30px;padding:38px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;transition:transform .35s ease,box-shadow .35s ease;" style-hover="transform:translateY(-5px);box-shadow:0 22px 48px rgba(20,19,24,.14);" data-reveal="" data-reveal-x="right"><div data-om-raster="true">{{ icBook }}</div><h4 style="font-weight:700;font-size:22.5px;line-height:1.3;">רשימה של ספרים</h4><p data-gray="" style="font-size:19px;line-height:1.4;color:#595857;text-wrap:pretty;">שכל אחד חייב להכיר</p></div>
+<div data-reveal="" data-reveal-mode="scale" style="grid-row:span 2;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;min-height:480px;">
+<div style="width:280px;height:280px;border-radius:44px;background:linear-gradient(135deg,#06B58D,#42C5C6 50%,#6EB9F2);display:flex;align-items:center;justify-content:center;box-shadow:0 14px 36px rgba(6,181,141,.28);">
+<img src="uploads/Logo-White.png" alt="מטלנט לסופר-טלנט" style="width:78%;height:auto;display:block;">
+</div>
+</div>
+<div style="position:relative;z-index:1;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;box-shadow:0 12px 34px rgba(20,19,24,.07);border-radius:30px;padding:38px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;transition:transform .35s ease,box-shadow .35s ease;" style-hover="transform:translateY(-5px);box-shadow:0 22px 48px rgba(20,19,24,.14);" data-reveal="" data-reveal-x="left"><div data-om-raster="true">{{ icMap }}</div><h4 style="font-weight:700;font-size:22.5px;line-height:1.3;">מפת הקשרים</h4><p data-gray="" style="font-size:19px;line-height:1.4;color:#595857;text-wrap:pretty;">שרטוט של "מפת הקשרים שלי בעולם"</p></div>
+<div style="position:relative;z-index:1;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;box-shadow:0 12px 34px rgba(20,19,24,.07);border-radius:30px;padding:38px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;transition:transform .35s ease,box-shadow .35s ease;" style-hover="transform:translateY(-5px);box-shadow:0 22px 48px rgba(20,19,24,.14);" data-reveal="" data-reveal-x="right"><div data-om-raster="true">{{ icDoc }}</div><h4 style="font-weight:700;font-size:22.5px;line-height:1.3;">מקורות ומאמרים</h4><p data-gray="" style="font-size:19px;line-height:1.4;color:#595857;text-wrap:pretty;">הפניה למקורות ולמאמרים נבחרים</p></div>
+<div style="position:relative;z-index:1;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;box-shadow:0 12px 34px rgba(20,19,24,.07);border-radius:30px;padding:38px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;transition:transform .35s ease,box-shadow .35s ease;" style-hover="transform:translateY(-5px);box-shadow:0 22px 48px rgba(20,19,24,.14);" data-reveal="" data-reveal-x="left"><div data-om-raster="true">{{ icPeople }}</div><h4 style="font-weight:700;font-size:22.5px;line-height:1.3;">קהילה של ידע והשראה</h4><p data-gray="" style="font-size:19px;line-height:1.4;color:#595857;text-wrap:pretty;">הצטרפות לקהילה של ידע והשראה</p></div>
+</div>
+</div>
+      <div data-reveal="" data-no-blur="" data-reveal-early="" style="text-align:center;margin-top:52px;">
+        <a href="#contact" data-magnet="" style="display:inline-block;background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);border:1.5px solid transparent;color:#FFFFFF;padding:17px 40px;border-radius:999px;font-weight:600;font-size:21.3px;transition:filter .3s ease,transform .3s ease;" style-hover="filter:brightness(1.12);color:#fff">רוצים להפוך לסופר-טלנטים? <br data-brk="">דברו איתנו ונקבע שיחת הדגמה</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · ד״ר אייל דורון -->
+  <section id="about" data-screen-label="ד״ר אייל דורון" style="position:relative;overflow:hidden;padding:100px 0 100px clamp(18px,6vw,8em);">
+    <x-import component="Aurora" from="./reactbits/Aurora.jsx" colors="#06B58D,#42C5C6,#6EB9F2" intensity="1.04" hint-size="100%,100%" style="position:absolute;top:0;bottom:0;right:0;width:66%;pointer-events:none;"></x-import>
+    <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(270deg,rgba(246,245,243,0) 0%,rgba(246,245,243,0) 34%,rgba(246,245,243,.6) 52%,rgba(246,245,243,.92) 68%,#f6f5f3 82%,#f6f5f3 100%);"></div>
+    <div style="position:absolute;top:0;left:0;right:0;height:170px;pointer-events:none;background:linear-gradient(180deg,rgba(246,245,243,.92) 12%,rgba(246,245,243,0) 100%);"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:200px;pointer-events:none;background:linear-gradient(180deg,rgba(246,245,243,0) 0%,rgba(246,245,243,.95) 88%);"></div>
+    <div style="position:relative;z-index:1;width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:56px;align-items:center;">
+      <div data-reveal="" data-about-img="" style="position:relative;z-index:1;width:100%;align-self:stretch;display:flex;align-items:flex-end;justify-content:flex-end;min-height:clamp(560px,64vw,900px);">
+        <img src="uploads/Eyal2.png" alt="ד״ר אייל דורון" style="position:absolute;right:0;bottom:0;z-index:1;display:block;width:125%;max-width:775px;height:auto;">
+      </div>
+      <div data-reveal="" style="position:relative;z-index:30;">
+        <h2 style="font-weight:700;font-size:clamp(34px,6.3vw,75px);line-height:1.3;margin-bottom:26px;background:linear-gradient(to left,#5b5b5a,#000000);-webkit-background-clip:text;background-clip:text;color:transparent;">ד״ר אייל דורון</h2>
+        <p data-gray="" style="font-size: 24.5px; line-height: 1.3; color: #000000; text-wrap: pretty">חוקר ומפתח חשיבה יצירתית, מומחה לאסטרטגיה יצירתית בעולם חסר ודאות. <br>ד"ר דורון עומד בראש התוכנית Action in Creativity ב-Fore של אוניברסיטת רייכמן. <br>דורון ייסד את שיטת SEISEI לפיתו חשיבה יצירתיות בקרב ילדים בוני-נוער <br>שהיתה גם נושא הפוסט-דוקרטוראט שלו.</p>
+        <p data-gray="" style="margin-top:16px;font-size:24.5px;line-height:1.3;color:#000000;text-wrap:pretty;">השיטה נבחרה על-ידי ארגון HundrED בפינלנד כאחת <br>ממאה שיטות החינוך החדשניות בעולם.</p>
+        <p data-gray="" style="margin-top:16px;font-size:24.5px;line-height:1.3;color:#000000;text-wrap:pretty;">דורון עובד באופן שוטף עם הנהלות בכירות, מייסדים וארגונים גדולים בארץ ובעולם. <br>הוא מחברם של ספרים רבי-מכר ויוצר של סדרות מדע פופולרי לטלוויזיה. <br>העשייה הבינתחומית הזאת חוברת יחד בקורס הזה לפורמט חוויתי וסוחף.</p>
+        <div style="margin-top:34px;padding-top:1em;"><a href="#contact" data-magnet="" style="display:inline-block;background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);border:1.5px solid transparent;color:#FFFFFF;padding:15px 34px;border-radius:999px;font-weight:600;font-size:20.4px;transition:filter .3s ease;" style-hover="filter:brightness(1.08)">הפכו לסופר-טאלנטים!</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · מספרים מהשטח -->
+  <section id="numbers" data-screen-label="מספרים מהשטח" style="padding:30px clamp(18px,6vw,8em) 100px;">
+    <div style="width:100%;">
+      <h2 data-reveal="" style="font-weight:700;font-size:clamp(34px,6.3vw,75px);line-height:1.3;text-align:center;margin-bottom:52px;background:linear-gradient(to left,#5b5b5a,#000000);-webkit-background-clip:text;background-clip:text;color:transparent;">מספרים מהשטח</h2>
+      <div style="position:relative;">
+<div data-t-strip="" ref="{{ tRef }}" style="display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:6px 2px 14px;">
+<sc-for list="{{ testimonials }}" as="t" hint-placeholder-count="3">
+<div data-reveal="" style="flex:0 0 calc((100% - 44px)/3);min-width:300px;scroll-snap-align:start;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:26px;padding:36px 32px;display:flex;flex-direction:column;gap:14px;">
+<div style="align-self:flex-start;display:inline-block;font-size:55px;line-height:.65;font-weight:700;background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);-webkit-background-clip:text;background-clip:text;color:transparent;">"</div>
+<p data-gray="" style="font-size:20.1px;line-height:1.5;color:#000000;text-wrap:pretty;flex:1;">{{ t.text }}</p>
+<div style="display:flex;align-items:center;gap:14px;margin-top:6px;">
+<div style="width:52px;height:52px;flex:0 0 auto;"><image-slot id="{{ t.slot }}" shape="circle" placeholder="תמונה"></image-slot></div>
+<div><div style="font-weight:700;font-size:20.1px;color:#000000;">{{ t.name }}</div><div data-gray="" style="font-size:17.3px;color:#000000;">{{ t.role }}</div></div>
+</div>
+</div>
+</sc-for>
+</div>
+<button onClick="{{ tPrev }}" aria-label="הקודם" style="position:absolute;top:50%;right:-24px;transform:translateY(-50%);z-index:2;width:52px;height:52px;border-radius:50%;background:#FFFFFF;border:1px solid #E3E1DC;color:#1B1A1F;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;" style-hover="background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);color:#FFFFFF;border-color:transparent;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></button>
+<button onClick="{{ tNext }}" aria-label="הבא" style="position:absolute;top:50%;left:-24px;transform:translateY(-50%);z-index:2;width:52px;height:52px;border-radius:50%;background:#FFFFFF;border:1px solid #E3E1DC;color:#1B1A1F;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s ease;" style-hover="background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);color:#FFFFFF;border-color:transparent;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+</div>
+    </div>
+  </section>
+
+  <!-- 8 · שאלות שהרבה שואלים -->
+  <section id="faq" data-screen-label="שאלות שהרבה שואלים" style="padding:100px clamp(18px,6vw,8em) 5em;">
+    <div style="width:100%;">
+      <h2 data-reveal="" style="font-weight:700;font-size:clamp(34px,6.3vw,75px);line-height:1.3;text-align:center;margin-bottom:52px;background:linear-gradient(to left,#5b5b5a,#000000);-webkit-background-clip:text;background-clip:text;color:transparent;">שאלות שהרבה שואלים</h2>
+      <div style="position:relative;padding-bottom:6em;">
+<x-import component="Aurora" from="./reactbits/Aurora.jsx" colors="#06B58D,#42C5C6,#6EB9F2" intensity="0.64" fade-edges="true" hint-size="100%,100%" style="position:absolute;inset:-8% -4%;pointer-events:none;"></x-import>
+<div style="position:absolute;inset:-8% -4%;pointer-events:none;background:linear-gradient(180deg,#f6f5f3 0%,#f6f5f3 5%,rgba(246,245,243,.78) 26%,rgba(246,245,243,.62) 50%,rgba(246,245,243,.78) 74%,#f6f5f3 95%,#f6f5f3 100%);"></div>
+<div data-faq-grid="" style="position:relative;display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:start;">
+        <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="6">
+          <div data-reveal="" style="background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:26px;overflow:hidden;">
+            <button onClick="{{ q.onToggle }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;background:none;border:0;cursor:pointer;text-align:right;font-weight:600;font-size:21.9px;color:#1B1A1F;">
+              <span>{{ q.question }}</span>
+              <span style="{{ q.chevStyle }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></span>
+            </button>
+            <div style="{{ q.wrapStyle }}"><div style="overflow:hidden;"><div data-gray="" style="padding:0 26px 24px;font-size:20px;line-height:1.3;color:#595857;">{{ q.answer }}</div></div></div>
+          </div>
+        </sc-for>
+      </div></div>
+      <div data-reveal="" data-price-box="" style="position:relative;overflow:hidden;margin-top:56px;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;border-radius:26px;padding:clamp(30px,3.2vw,50px) clamp(26px,4vw,56px);text-align:center;">
+        <x-import component="Aurora" from="./reactbits/Aurora.jsx" colors="#06B58D,#42C5C6,#6EB9F2" intensity="1.64" hint-size="100%,100%" style="position:absolute;inset:0;z-index:1;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 30% 42% at 0% 0%, #000 0%, rgba(0,0,0,.6) 30%, transparent 52%),radial-gradient(ellipse 30% 42% at 100% 100%, #000 0%, rgba(0,0,0,.6) 30%, transparent 52%);mask-image:radial-gradient(ellipse 30% 42% at 0% 0%, #000 0%, rgba(0,0,0,.6) 30%, transparent 52%),radial-gradient(ellipse 30% 42% at 100% 100%, #000 0%, rgba(0,0,0,.6) 30%, transparent 52%);"></x-import>
+        <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 74% 88% at 50% 50%, #ffffff 0%, rgba(255,255,255,.9) 38%, rgba(255,255,255,0) 64%),radial-gradient(ellipse 55% 65% at 100% 0%, #ffffff 0%, rgba(255,255,255,.9) 40%, rgba(255,255,255,0) 68%),radial-gradient(ellipse 55% 65% at 0% 100%, #ffffff 0%, rgba(255,255,255,.9) 40%, rgba(255,255,255,0) 68%),radial-gradient(ellipse 60% 55% at 50% 0%, #ffffff 0%, rgba(255,255,255,.9) 42%, rgba(255,255,255,0) 70%),radial-gradient(ellipse 60% 55% at 50% 100%, #ffffff 0%, rgba(255,255,255,.9) 42%, rgba(255,255,255,0) 70%);"></div>
+        <img src="uploads/bg6.png" alt="" style="position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;pointer-events:none;">
+        <h3 style="position:relative;z-index:2;font-weight:700;font-size:clamp(34px,6.3vw,75px);line-height:1.1;margin-bottom:20px;background:linear-gradient(to left,#5b5b5a,#000000);-webkit-background-clip:text;background-clip:text;color:transparent;">מחיר והנחה</h3>
+        <div style="position:relative;z-index:2;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:34px;">
+          <p data-gray="" style="font-size:32.3px;line-height:1.35;color:#595857;text-wrap:pretty;">מחיר הקורס הבסיסי הוא <br><span data-price-big="" style="font-size:54px;font-weight:700;color:#000000;">750 ₪ למשתתף</span><br>עד 100 משתתפים.</p>
+          <p data-gray="" style="font-size:32.3px;line-height:1.35;color:#595857;text-wrap:pretty;">מעבר ל-100 משתתפים <br data-brk=""><span style="font-weight:700;color:#000000;">המחיר יורד ל-650 ₪ למשתתף.</span></p>
+          <p data-gray="" style="font-size:32.3px;line-height:1.35;color:#595857;text-wrap:pretty;">ככל שיש יותר משתתפים - <br data-brk="">האפקט במסדרונות מתחזק <br>והמחיר פר משתתף יורד <br data-brk="">(המחירים אינם כוללים מע״מ).</p>
+          <p data-gray="" style="font-size:32.3px;line-height:1.35;color:#595857;text-wrap:pretty;">את ההיקף המדויק, <br data-brk="">פיילוט אפשרי והתאמת המסלול - <br><span style="font-weight:700;color:#000000;">נסגור יחד בשיחה אישית.</span></p>
+        </div>
+        <div style="position:relative;z-index:2;margin-top:26px;">
+          <a href="#contact" data-magnet="" style="display:inline-block;background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);border:1.5px solid transparent;color:#FFFFFF;padding:15px 36px;border-radius:999px;font-weight:600;font-size:20.6px;transition:filter .3s ease,transform .3s ease;" style-hover="filter:brightness(1.12);color:#fff">לקבלת הצעה מותאמת</a>
+        </div>
+      </div>
+      <div data-reveal="" style="position:relative;margin-top:72px;width:100%;padding:clamp(40px,4.5vw,72px) 0;">
+                <div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:clamp(22px,2.6vw,34px);align-items:center;text-align:center;">
+          <div style="flex:0 0 auto;width:96px;height:96px;border-radius:50%;background:linear-gradient(160deg,#FFFFFF 0%,#EFEEEB 100%);border:1px solid #FFFFFF;display:flex;align-items:center;justify-content:center;" data-om-raster="true"><svg width="52" height="52" viewBox="0 0 48 48" aria-hidden="true" style="display:block;"><defs><linearGradient id="qgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#06B58D"></stop><stop offset="0.52" stop-color="#42C5C6"></stop><stop offset="1" stop-color="#6EB9F2"></stop></linearGradient></defs><path d="M20.5 9C12.4 12.1 7 19.2 7 27.2 7 33.7 10.9 38 16.3 38c4.6 0 8.1-3.3 8.1-7.7 0-4.2-3-7.4-7.1-7.4-.8 0-1.6.1-2.3.4 1-4.9 4.4-9 9.3-11.4L20.5 9z" fill="url(#qgrad)"></path><path d="M40.1 9c-8.1 3.1-13.5 10.2-13.5 18.2 0 6.5 3.9 10.8 9.3 10.8 4.6 0 8.1-3.3 8.1-7.7 0-4.2-3-7.4-7.1-7.4-.8 0-1.6.1-2.3.4 1-4.9 4.4-9 9.3-11.4L40.1 9z" fill="url(#qgrad)"></path></svg></div>
+          <div>
+            <p data-letters="" style="font-size:clamp(22px,3.3vw,44px);line-height:1.3;font-weight:400;color:#000000;text-wrap:pretty;">הערך האמיתי של התהליך מתחיל דווקא כשהוא נגמר: <br>&nbsp;&nbsp;<span style="font-size: clamp(24px, 3.6vw, 48px); font-weight: 700; color: rgb(66, 197, 198);">כשהכלים, השפה והתובנות הופכים לחלק מהיום-יום של הארגון,</span><br>וכל טלנט הופך למכפיל כוח שמייצר אימפקט הרבה מעבר לתפקיד שלו.</p>
+            <p style="margin-top:clamp(24px,2.6vw,40px);font-size:23px;font-weight:700;color:#595857;">- מנכ״ל בלובירד, רונן נדיר</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · טופס השארת פרטים -->
+  <section id="contact" data-screen-label="טופס השארת פרטים" style="padding:40px clamp(16px,4.5vw,5em);">
+    <div style="position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:#232227;color:#F2F1F5;padding:100px 28px;border-radius:40px;">
+    <x-import component="Aurora" from="./reactbits/Aurora.jsx" colors="#06B58D,#42C5C6,#6EB9F2" intensity="0.64" hint-size="100%,100%" style="position:absolute;inset:0;"></x-import>
+    <div style="position:relative;z-index:2;max-width:840px;margin:0 auto;text-align:center;">
+      <p data-reveal="" style="font-size:23.1px;font-weight:600;color:#B9B6C4;margin-bottom:14px;">טופס השארת פרטים</p>
+      <h2 data-reveal="" data-form-title="" style="font-weight:700;font-size:clamp(30px,6.1vw,82px);line-height:1.3;margin-bottom:18px;white-space:nowrap;">השאירו פרטים <br data-brk=""><span style="background:linear-gradient(100deg,#6EB9F2,#42C5C6 50%,#06B58D);-webkit-background-clip:text;background-clip:text;color:transparent;">ונחזור אליכם</span></h2>
+      <p data-reveal="" style="font-size: 28.2px; line-height: 1.3; color: #FFFFFF; max-width: 900px; margin: 0 auto 40px; text-wrap: pretty">רוצים לראות איך זה עובד על הטלנטים שלכם? <br>&nbsp;השאירו פרטים ונחזור אליכם עם הצעה מותאמת, ללא התחייבות.</p>
+      <form data-reveal="" onSubmit="{{ onSubmit }}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;text-align:right;">
+        <input required="" name="fullname" placeholder="שם מלא" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:16px 18px;color:#F2F1F5;font-size:25.6px;outline:none;" style-focus="border-color:#42C5C6">
+        <input name="org" placeholder="ארגון" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:16px 18px;color:#F2F1F5;font-size:25.6px;outline:none;" style-focus="border-color:#42C5C6">
+        <input name="role" placeholder="תפקיד" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:16px 18px;color:#F2F1F5;font-size:25.6px;outline:none;" style-focus="border-color:#42C5C6">
+        <input type="email" name="email" placeholder="אימייל" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:16px 18px;color:#F2F1F5;font-size:25.6px;outline:none;" style-focus="border-color:#42C5C6">
+        <input type="tel" name="phone" placeholder="טלפון" dir="rtl" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:16px 18px;color:#F2F1F5;font-size:25.6px;outline:none;text-align:right;" style-focus="border-color:#42C5C6">
+        <input type="number" name="participants" placeholder="מספר משתתפים" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:16px 18px;color:#F2F1F5;font-size:25.6px;outline:none;" style-focus="border-color:#42C5C6">
+        <div style="grid-column:1/-1;display:flex;justify-content:center;margin-top:12px;">
+          <button type="submit" data-magnet="" style="border:1.5px solid transparent;cursor:pointer;background:linear-gradient(100deg,#06B58D,#42C5C6 50%,#6EB9F2);color:#FFFFFF;padding:15px 44px;border-radius:999px;font-weight:600;font-size:27.3px;transition:filter .3s ease,transform .3s ease;" style-hover="filter:brightness(1.12)">
+            <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}"><span>נשלח ✓</span></sc-if>
+            <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}"><span>שליחת פרטים</span></sc-if>
+          </button>
+        </div>
+      </form>
+    </div>
+    </div>
+  </section>
+
+  <!-- Footer strip -->
+  <footer style="padding:0 28px 40px;display:flex;justify-content:center;">
+    <img data-reveal="" src="uploads/Logo-Black.png" alt="dr. eyal doron" style="height:56px;display:block;">
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;grayColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#595857&quot;,&quot;options&quot;:[&quot;#595857&quot;,&quot;#4c4b4a&quot;,&quot;#6B6965&quot;,&quot;#3A3742&quot;],&quot;section&quot;:&quot;צבעים&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;auroraIntensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.92,&quot;min&quot;:0,&quot;max&quot;:2.5,&quot;step&quot;:0.05,&quot;section&quot;:&quot;אווירה&quot;},&quot;marqueeDuration&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:26,&quot;min&quot;:10,&quot;max&quot;:60,&quot;step&quot;:1,&quot;unit&quot;:&quot;s&quot;,&quot;section&quot;:&quot;תנועה&quot;},&quot;curveSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:90,&quot;min&quot;:20,&quot;max&quot;:200,&quot;step&quot;:5,&quot;section&quot;:&quot;תנועה&quot;}}">
+class Component extends DCLogic {
+  state = { open: -1, sent: false, scrolled: false };
+
+  applyGray() {
+    const c = this.props.grayColor ?? '#595857';
+    document.querySelectorAll('[data-gray]').forEach(el => { el.style.color = c; });
+  }
+  componentDidUpdate() { this.applyGray(); }
+  componentDidMount() {
+    this.applyGray();
+    this.initMotion();
+    this._onHdr = () => {
+      const s = (window.scrollY || 0) > 50;
+      if (s !== this.state.scrolled) this.setState({ scrolled: s });
+    };
+    window.addEventListener('scroll', this._onHdr, { passive: true });
+    this._onHdr();
+  }
+  componentWillUnmount() {
+    if (this.io) this.io.disconnect();
+    if (this._onHdr) window.removeEventListener('scroll', this._onHdr);
+    (this.cleanups || []).forEach(fn => fn());
+  }
+
+  initMotion() {
+    let tries = 0;
+    const go = () => {
+      if (!window.gsap && tries++ < 60) return setTimeout(go, 70);
+      const gsap = window.gsap;
+      const els = [].slice.call(document.querySelectorAll('[data-reveal]'));
+      const clamp01 = (v) => Math.max(0, Math.min(1, v));
+      const initLetters = (lq) => {
+        if (!lq) return;
+        if (lq._letters && lq._letters.length && lq._letters[0].isConnected) return;
+        const cs = getComputedStyle(lq);
+        if (lq._clipTxt == null) {
+          lq._clipTxt = (cs.webkitBackgroundClip === 'text' || cs.backgroundClip === 'text');
+          const bi = cs.backgroundImage;
+          lq._bgImg = (bi && bi !== 'none') ? bi : 'linear-gradient(to left,#5b5b5a,#000000)';
+        }
+        const clipTxt = lq._clipTxt;
+        const bgImg = lq._bgImg;
+        if (clipTxt) {
+          lq.style.background = 'none';
+          lq.style.webkitTextFillColor = 'initial';
+          lq.style.color = '#000000';
+        }
+        const spans = [];
+        const walker = document.createTreeWalker(lq, NodeFilter.SHOW_TEXT, null);
+        const texts = []; let tn;
+        while ((tn = walker.nextNode())) texts.push(tn);
+        texts.forEach((t) => {
+          let nClip = false, nBg = null, anc = t.parentNode;
+          while (anc && anc !== lq && anc.nodeType === 1) {
+            const acs = getComputedStyle(anc);
+            if (acs.webkitBackgroundClip === 'text' || acs.backgroundClip === 'text') {
+              if (anc._bgImg == null) {
+                const abi = acs.backgroundImage;
+                anc._bgImg = (abi && abi !== 'none') ? abi : bgImg;
+                anc.style.background = 'none';
+                anc.style.webkitTextFillColor = 'initial';
+              }
+              nClip = true; nBg = anc._bgImg; break;
+            }
+            anc = anc.parentNode;
+          }
+          const frag = document.createDocumentFragment();
+          let word = null;
+          t.textContent.split('').forEach((ch) => {
+            if (/\s/.test(ch)) { word = null; frag.appendChild(document.createTextNode(ch)); return; }
+            if (!word) {
+              word = document.createElement('span');
+              word.style.display = 'inline-block';
+              word.style.whiteSpace = 'nowrap';
+              frag.appendChild(word);
+            }
+            const s = document.createElement('span');
+            s.textContent = ch;
+            s.style.display = 'inline-block';
+            s.style.willChange = 'transform,opacity';
+            if (clipTxt || nClip) {
+              s.style.backgroundImage = nClip ? nBg : bgImg;
+              s.style.webkitBackgroundClip = 'text';
+              s.style.backgroundClip = 'text';
+              s.style.webkitTextFillColor = 'transparent';
+            }
+            word.appendChild(s);
+            spans.push(s);
+          });
+          t.parentNode.replaceChild(frag, t);
+        });
+        lq._letters = spans;
+      };
+      document.querySelectorAll('[data-letters]').forEach((el) => { try { initLetters(el); } catch (e) {} });
+      let ticking = false;
+      let firstPaint = true;
+      const paint = () => {
+        ticking = false;
+        const vh = window.innerHeight || 800;
+        [].slice.call(document.querySelectorAll('[data-reveal]')).forEach((el) => {
+          try {
+          const r = el.getBoundingClientRect();
+          if ((firstPaint || (window.scrollY || 0) < 40) && r.top < vh && r.bottom > 0) el._seenAtLoad = true;
+          if (r.bottom < -300 || r.top > vh + 300) return;
+          const sy = window.scrollY || 0;
+          const docH = document.body.scrollHeight || 0;
+          const endBoost = r.top < vh ? clamp01(((sy + vh) - (docH - vh * 0.3)) / (vh * 0.25)) : 0;
+          const early = el.hasAttribute('data-reveal-early');
+          const enter = el._seenAtLoad ? 1 : Math.max(
+            early ? clamp01((vh * 1.04 - r.top) / (vh * 0.16)) : clamp01((vh * 0.97 - r.top) / (vh * 0.34)),
+            clamp01((vh * 0.98 - r.bottom) / (vh * 0.18)),
+            endBoost
+          );
+          const exit = clamp01(r.bottom / (vh * 0.22));
+          const p = Math.min(enter, exit);
+          const y = (1 - enter) * 90 - (1 - exit) * 90;
+          const bp = clamp01(p / 0.45);
+          const blur = bp > 0.97 ? 'none' : 'blur(' + ((1 - bp) * 8).toFixed(2) + 'px)';
+          const xa = el.getAttribute('data-reveal-x');
+          const md = el.getAttribute('data-reveal-mode');
+          let vals;
+          if (xa) vals = { opacity: p, x: (1 - p) * (xa === 'right' ? 130 : -130), y: 0, scale: 1, filter: blur };
+          else if (md === 'scale') vals = { opacity: p, x: 0, y: 0, scale: 0.55 + 0.45 * p, filter: blur };
+          else vals = { opacity: p, x: 0, y, scale: 0.93 + 0.07 * p, filter: blur };
+          if (gsap) gsap.set(el, vals);
+          else { el.style.opacity = vals.opacity; el.style.transform = 'translate(' + vals.x + 'px,' + vals.y + 'px) scale(' + vals.scale + ')'; el.style.filter = vals.filter; }
+          } catch (e) {}
+        });
+        firstPaint = false;
+        document.querySelectorAll('[data-letters]').forEach((lq) => {
+          try { initLetters(lq); } catch (e) {}
+          if (!lq._letters) return;
+          const qr = lq.getBoundingClientRect();
+          if (qr.bottom < -200 || qr.top > vh + 200) return;
+          const prog = lq._seenAtLoad ? 1 : clamp01((vh * 1.0 - qr.top) / (vh * 0.42));
+          const L = lq._letters, N = L.length;
+          for (let i = 0; i < N; i++) {
+            const lp = clamp01((prog - (i / N) * 0.75) / 0.25);
+            L[i].style.opacity = lp;
+            L[i].style.transform = 'translateY(' + ((1 - lp) * 34).toFixed(1) + 'px)';
+          }
+        });
+        const tl = document.querySelector('[data-tl-wrap]');
+        if (tl) {
+          const tr = tl.getBoundingClientRect();
+          const prog = clamp01((vh * 0.6 - tr.top) / tr.height);
+          const line = tl.querySelector('[data-tl-line]');
+          const dots = tl.querySelectorAll('[data-tl-dot]');
+          let topOff = 0, botOff = 0;
+          if (dots.length) {
+            const fr = dots[0].getBoundingClientRect();
+            const lr = dots[dots.length - 1].getBoundingClientRect();
+            topOff = fr.top + fr.height / 2 - tr.top;
+            botOff = tr.bottom - (lr.top + lr.height / 2);
+            const bg = tl.querySelector('[data-tl-bg]');
+            if (bg) { bg.style.top = topOff + 'px'; bg.style.bottom = botOff + 'px'; }
+          }
+          const span = Math.max(1, tr.height - topOff - botOff);
+          if (line) { line.style.top = topOff + 'px'; line.style.height = (prog * span).toFixed(1) + 'px'; }
+          const lineY = tr.top + topOff + span * prog;
+          [].slice.call(tl.querySelectorAll('[data-tl-dot]')).forEach((d) => {
+            const dr = d.getBoundingClientRect();
+            const on = dr.top + dr.height / 2 <= lineY + 2;
+            d.style.background = on ? 'linear-gradient(120deg,#06B58D,#42C5C6 50%,#6EB9F2)' : '#3A3844';
+            d.style.boxShadow = on ? '0 0 20px rgba(66,197,198,.75)' : 'none';
+            d.style.transform = on ? 'scale(1.3)' : 'scale(1)';
+          });
+        }
+      };
+      const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(paint); } };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      paint();
+      setTimeout(paint, 400);
+      setTimeout(paint, 1200);
+
+      let lenis = null;
+      if (window.Lenis) {
+        lenis = new window.Lenis({ duration: 1.15, smoothWheel: true });
+        const lraf = (time) => { lenis.raf(time); this._lraf = requestAnimationFrame(lraf); };
+        this._lraf = requestAnimationFrame(lraf);
+      } else {
+        document.documentElement.style.scrollBehavior = 'smooth';
+      }
+      [].slice.call(document.querySelectorAll('a[href^="#"]')).forEach((a) => {
+        a.addEventListener('click', (e) => {
+          const t = document.querySelector(a.getAttribute('href'));
+          if (!t) return;
+          e.preventDefault();
+          if (lenis) lenis.scrollTo(t, { offset: -70 }); else window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' });
+        });
+      });
+
+      this.cleanups = [() => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (this._lraf) cancelAnimationFrame(this._lraf); }];
+      if (gsap) [].slice.call(document.querySelectorAll('[data-magnet]')).forEach((el) => {
+        const move = (ev) => {
+          const r = el.getBoundingClientRect();
+          gsap.to(el, { x: (ev.clientX - r.left - r.width / 2) * 0.22, y: (ev.clientY - r.top - r.height / 2) * 0.3, duration: 0.4, ease: 'power2.out' });
+        };
+        const leave = () => gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.5)' });
+        el.addEventListener('mousemove', move);
+        el.addEventListener('mouseleave', leave);
+        this.cleanups.push(() => { el.removeEventListener('mousemove', move); el.removeEventListener('mouseleave', leave); });
+      });
+    };
+    go();
+  }
+
+  ic(id, paths, size, color, sw) {
+    const h = React.createElement;
+    const stroke = color || ('url(#' + id + ')');
+    const w = sw || 1.7;
+    const extra = sw === 'thin' ? { strokeWidth: 2, vectorEffect: 'non-scaling-stroke' } : { strokeWidth: w };
+    return h('svg', { width: size || 26, height: size || 26, viewBox: '0 0 24 24', fill: 'none' },
+      h('defs', { key: 'd' }, h('linearGradient', { id, gradientUnits: 'userSpaceOnUse', x1: 0, y1: 0, x2: 24, y2: 24 },
+        h('stop', { key: 0, offset: '0%', stopColor: '#06B58D' }),
+        h('stop', { key: 1, offset: '50%', stopColor: '#42C5C6' }),
+        h('stop', { key: 2, offset: '100%', stopColor: '#6EB9F2' }))),
+      paths.map((p, i) => Array.isArray(p)
+        ? h(p[0], { key: i, stroke, ...extra, strokeLinecap: 'round', strokeLinejoin: 'round', fill: 'none', ...p[1] })
+        : h('path', { key: i, d: p, stroke, ...extra, strokeLinecap: 'round', strokeLinejoin: 'round', fill: 'none' })));
+  }
+
+  faqData() {
+    return [
+      { q: 'כמה זמן זה לוקח ביום?', a: 'עד עשר דקות. סרטונים קצרים ומתומצתים, שמעוררים חשיבה ומניעים לפעולה.' },
+      { q: 'אונליין או פרונטלי?', a: 'הקורס הוא היברידי ומשלב בין תרגול דיגיטלי יומי, וובינרים שבועיים, ליווי של מנחים וסדנה פיזית.' },
+      { q: 'למי זה מתאים?', a: 'לארגונים שרוצים לפתח את הטלנטים שלהם, לעצב שפה משותפת של חדשנות ויצירתיות, לטפח יכולות של יוזמה ותחשות מעורבות בקרב מנהלים ועובדים. קהל היעד אליו מיועד הקורס כולל דרגי הנהלה, טלנטים ומומחי תוכן.' },
+      { q: 'הקורס דיגיטלי, איך יודעים שהטלנטים באמת ישלימו אותו?', a: 'בנינו מערך שלם של ליווי, תכנים מוחשיים וסוחפים, משפטי מפתח קליטים ומושגים קליטים שהופכים לחלק משיחת היום. היישום של הכלים בקורס ניכר מאוד ביום יום ויוצר חיבור ותחושת ערך. המנחים שלנו מנטרים את התקדמות המשתתפים ומלווים את מי שמתעכב מאחור.' },
+      { q: 'מה מייחד את הקורס הזה מהכשרות אחרות?', a: 'רוב התכנים מלמדים ידע. כאן בונים שפת חשיבה, רוכשים כלים שאפשר ליישם בכל פגישת עבודה ומאמצים הרגלים חדשים וגישה חדשה לעבודה ולחיים.' },
+      { q: 'איך רוכשים את הקורס לארגון ומה כמות המשתתפים המינימאלית?', a: 'תשאירו פרטים ואנחנו נתאים מסלול ותמחור שעונים לצורך שלכם.' },
+    ];
+  }
+
+  renderVals() {
+    const faqs = this.faqData().map((f, i) => {
+      const open = this.state.open === i;
+      return {
+        question: f.q, answer: f.a, open,
+        wrapStyle: { display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows .45s ease' },
+        chevStyle: { flex: '0 0 auto', width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(120deg,#06B58D,#6EB9F2)', color: '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform .45s ease' },
+        onToggle: () => this.setState(s => ({ open: s.open === i ? -1 : i })),
+      };
+    });
+    const sc = this.state.scrolled;
+    return {
+      hdrW: sc ? 1020 : 1220,
+      hdrBg: sc ? 'rgba(255,255,255,.78)' : 'rgba(255,255,255,0)',
+      hdrBl: sc ? 18 : 0,
+      hdrBc: sc ? 'rgba(255,255,255,.9)' : 'rgba(255,255,255,0)',
+      hdrSh: sc ? '0 12px 40px rgba(27,26,31,.1), 0 2px 8px rgba(27,26,31,.05)' : 'none',
+      faqs,
+      sent: this.state.sent,
+      notSent: !this.state.sent,
+      onSubmit: (e) => { e.preventDefault(); this.setState({ sent: true }); },
+      auroraIntensity: this.props.auroraIntensity ?? 1.92,
+      marqueeDuration: this.props.marqueeDuration ?? 26,
+      curveSpeed: this.props.curveSpeed ?? 135,
+      domeImages: [
+        'photo-1540575467063-178a50c2df87', 'photo-1524178232363-1fb2b075b655', 'photo-1552664730-d307ca884978',
+        'photo-1515187029135-18ee286d815b', 'photo-1531482615713-2afd69097998', 'photo-1544531586-fde5298cdd40',
+        'photo-1523240795612-9a054b0db644', 'photo-1475721027785-f74eccf877e2'
+      ].map((id) => ({ src: 'https://images.unsplash.com/' + id + '?w=900&q=80&auto=format&fit=crop', alt: 'תמונה מהקורס' })),
+      icTalent: this.ic('ta', ['M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-2.9-5.4 2.9 1.1-6L3.2 9.4l6.1-.8z'], 40, null, 1.7),
+      icSuper: this.ic('tb', ['M13 3 4 14h7l-1 7 9-11h-7z'], 44, null, 1.7),
+      icAimBig: this.ic('ba', [['circle', { cx: 12, cy: 12, r: 9 }], ['circle', { cx: 12, cy: 12, r: 4.5 }], ['circle', { cx: 12, cy: 12, r: 0.8 }]], 150, null, 'thin'),
+      icFlexBig: this.ic('bb', ['M4 17c4 0 4-10 8-10s4 10 8 10', 'M4 7h.01', 'M20 17h.01'], 150, null, 'thin'),
+      icToolsBig: this.ic('bc', ['M13 3 4 14h7l-1 7 9-11h-7z'], 130, null, 'thin'),
+      icLinkBig: this.ic('bd', ['M9.4 14.6 14.6 9.4', ['circle', { cx: 7, cy: 17, r: 3.4 }], ['circle', { cx: 17, cy: 7, r: 3.4 }]], 130, null, 'thin'),
+      icSparkBig: this.ic('be', ['M12 3v4', 'M12 17v4', 'M3 12h4', 'M17 12h4', 'M5.6 5.6l2.8 2.8', 'M15.6 15.6l2.8 2.8', 'M18.4 5.6l-2.8 2.8', 'M8.4 15.6l-2.8 2.8'], 130, null, 'thin'),
+      icAim: this.ic('ia', [['circle', { cx: 12, cy: 12, r: 9 }], ['circle', { cx: 12, cy: 12, r: 4.5 }], ['circle', { cx: 12, cy: 12, r: 0.8 }]]),
+      icFlex: this.ic('ib', ['M4 17c4 0 4-10 8-10s4 10 8 10', 'M4 7h.01', 'M20 17h.01']),
+      icTools: this.ic('ic2', ['M13 3 4 14h7l-1 7 9-11h-7z']),
+      icLink: this.ic('id2', ['M9.4 14.6 14.6 9.4', ['circle', { cx: 7, cy: 17, r: 3.4 }], ['circle', { cx: 17, cy: 7, r: 3.4 }]]),
+      icSpark: this.ic('ie', ['M12 3v4', 'M12 17v4', 'M3 12h4', 'M17 12h4', 'M5.6 5.6l2.8 2.8', 'M15.6 15.6l2.8 2.8', 'M18.4 5.6l-2.8 2.8', 'M8.4 15.6l-2.8 2.8']),
+      icClock: this.ic('if', [['circle', { cx: 12, cy: 12, r: 8.5 }], 'M12 7.5v4.5l3 2'], 46),
+      icChat: this.ic('ig', ['M21 11.5a8 8 0 0 1-11.8 7L4 20l1.5-5.2A8 8 0 1 1 21 11.5z'], 46),
+      icPin: this.ic('ih', ['M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z', ['circle', { cx: 12, cy: 10, r: 2.6 }]], 46),
+      icClockW: this.ic('ifw', [['circle', { cx: 12, cy: 12, r: 8.5 }], 'M12 7.5v4.5l3 2'], 30, '#FFFFFF'),
+      icChatW: this.ic('igw', ['M21 11.5a8 8 0 0 1-11.8 7L4 20l1.5-5.2A8 8 0 1 1 21 11.5z'], 30, '#FFFFFF'),
+      icPinW: this.ic('ihw', ['M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z', ['circle', { cx: 12, cy: 10, r: 2.6 }]], 30, '#FFFFFF'),
+      icBook: this.ic('ibk', ['M4 19.5A2.5 2.5 0 0 1 6.5 17H20', 'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'], 42),
+      icMap: this.ic('imp', ['M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z', 'M9 4v14', 'M15 6v14'], 42),
+      icDoc: this.ic('idc', ['M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z', 'M14 2v6h6', 'M8 13h8', 'M8 17h5'], 42),
+      icPeople: this.ic('ipp', [['circle', { cx: 9, cy: 8, r: 3.5 }], 'M2.5 20a6.5 6.5 0 0 1 13 0', ['circle', { cx: 17.5, cy: 9.5, r: 2.8 }], 'M15.5 14.6a5.5 5.5 0 0 1 6 5.4'], 42),
+      tRef: (this._tRef = this._tRef || React.createRef()),
+      tPrev: () => { const c = this._tRef && this._tRef.current; if (c) c.scrollBy({ left: (c.clientWidth - 44) / 3 + 22, behavior: 'smooth' }); },
+      tNext: () => { const c = this._tRef && this._tRef.current; if (c) c.scrollBy({ left: -((c.clientWidth - 44) / 3 + 22), behavior: 'smooth' }); },
+      testimonials: [
+        { slot: 'testi-photo-1', name: 'רונן נדיר', role: 'CEO Bluebird Aero Systems', text: 'בתעופה מלמדים אותנו שכל מכשיר מציג חלק אחר במצב המטוס. והטייס הטוב אינו זה שמסתכל על מכשיר אחד, אלא זה שיודע לחבר ביניהם לתמונה שלמה. זה בדיוק מה שהרווחתי בתהליך 30 הימים ברמה הניהולית. גיליתי שפה חדשה לחשיבה הניהולית שלי. לא רק גישה לפתור בעיות - אלא איך להסתכל עליהן מזוויות שלא חשבתי עליהן קודם. לאתגר הנחות יסוד, פירוק דפוסי חשיבה אוטומטיים ומאפשר למצוא פתרונות שבמבט ראשון נראים לא רציונליים, אך בדיעבד הם לעיתים המדויקים ביותר. יש קורסים שמרחיבים את הידע שלך. הקורס הזה פורץ את גבולות החשיבה שלך.' },
+        { slot: 'testi-photo-2', name: 'קלאודיו ביסמן', role: 'VP Sales & Marketing - Babcom Centers', text: 'כמנהל שמתמודד ביום יום עם אתגרים והחלטות מורכבות, קורס ׳מטלנט לסופר טלנט׳ היה עבורי כמו מפת אוצר שמלווה אותי בהתמודדות טובה יותר עם סוגיות שונות באמצעות בחשיבה לא קונבנציונלית או כפי שאייל אומר, "בצורה לא ליניארית. השיטה החדשנית של אייל דורון, שמאפשרת לימוד קצר, ענייני ויישומי כבר מהמפגש הראשון ומייצרת חווית למידה ייחודית המתאימה באופן מושלם לקצב העבודה של מנהלים ומאפשרת למידה יומית כל הזמן ומכל מקום. כל מפגש הוא חוויה מעשירה, המניעה לחשיבה מחוץ לקופסה וליישום מיידי של הכלים הנרכשים. הכלים והתובנות שרכשתי בקורס מאפשרים לי כיום לקבל החלטות מושכלות וממוקדות יותר ולהגיע להישגים אישיים טובים יותר בפחות זמן."' },
+        { slot: 'testi-photo-3', name: 'נעמה וול', role: 'CEO at Coglike', text: 'קורס ׳מטלנט לסופר טלנט׳ בהנחיית אייל דורון הוא הרבה מעבר לקורס ניהול – הוא מהווה תהליך מובנה שמזמין חשיבה מחודשת והתבוננות מעמיקה על סגנון הניהול האישי. הקורס העניק לי כלים מעשיים וחדשניים לניהול זמן, שיפור התקשורת והובלת צוותים, אותם שילבתי באופן מידי בעשייה היומיומית שלי. במהלך התהליך רכשתי תובנות שהפכו את הגישה הניהולית שלי ליעילה, ממוקדת ומותאמת יותר לאתגרים המודרניים. התכנים והמבנה מותאמים בצורה מדויקת למנהלים פעילים, עם דגש על מענה לצרכים אמיתיים בשטח. ממליצה בחום לכל מי ששואף לשדרג את יכולותיו הניהוליות ולהוביל באופן מקצועי ומשפיע.' },
+        { slot: 'testi-photo-4', name: 'ראובן יפת', role: 'Head of Marketing - Preventive Medicine Division, Movement Group', text: 'הקורס מדהים. נתן לי כלים יישומיים שאני משתמש בהם ביומיום בעבודה. לדוגמא, הכלי של "פירוק והרכבה מחדש" עזר לי לחשוב אחרת על פרויקטים. הכלים שקיבלתי גורמים לי להיות מפוקס יותר, חד יותר ובעיקר מנהל שמצליח להוביל שינויים בריאים לחברה.' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

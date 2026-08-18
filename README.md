@@ -1,0 +1,157 @@
+# מטלנט לסופר-טלנט — ד״ר אייל דורון
+
+Hebrew/RTL landing page for Dr. Eyal Doron's organisational course, built from a
+[Claude Design](https://claude.ai/design) prototype.
+
+Next.js 16 (App Router) · React 19 · Tailwind CSS v4 · TypeScript
+Images on Supabase Storage · Contact form via Resend
+
+---
+
+## Quick start
+
+```bash
+npm install
+cp .env.example .env.local   # optional for local dev — see below
+npm run dev
+```
+
+The site runs with no configuration at all: images fall back to `public/assets`,
+and the contact form returns a "not configured" error until Resend is set up.
+
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Dev server on :3000 |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run upload-assets` | Push `public/assets` to Supabase Storage |
+
+---
+
+## Images (Supabase Storage)
+
+Every image resolves through [`src/lib/assets.ts`](src/lib/assets.ts):
+
+```ts
+asset('logos/nestle.png')
+// no env set  ->  /assets/logos/nestle.png          (from public/)
+// env set     ->  https://<ref>.supabase.co/storage/v1/object/public/site-assets/logos/nestle.png
+```
+
+The same relative paths work against both sources, so switching over is one env
+var — no code changes.
+
+**To move images to Supabase:**
+
+1. Create a Supabase project.
+2. Fill in `.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
+   NEXT_PUBLIC_SUPABASE_BUCKET=site-assets
+   SUPABASE_SERVICE_ROLE_KEY=<service role key>
+   ```
+3. `npm run upload-assets`
+
+The script creates the bucket (public) if it is missing and upserts all 44
+files, so re-run it whenever artwork changes. The service-role key is only used
+by that script — it is never bundled into the client.
+
+`next.config.ts` whitelists the Supabase hostname for `next/image`, derived from
+`NEXT_PUBLIC_SUPABASE_URL` at build time.
+
+> **Note:** `public/assets` is kept in the repo as the source of truth and as the
+> zero-config fallback. Delete it only if you are certain the bucket is
+> populated in every environment.
+
+---
+
+## Contact form (Resend)
+
+`POST /api/contact` → [`src/app/api/contact/route.ts`](src/app/api/contact/route.ts)
+
+```
+RESEND_API_KEY=re_...
+CONTACT_FROM_EMAIL=noreply@yourdomain.com   # domain must be verified in Resend
+CONTACT_TO_EMAIL=sales@yourdomain.com       # comma-separated list allowed
+```
+
+The route validates input, escapes it into an RTL HTML email, sets `reply-to` to
+the submitter, and includes:
+
+- a hidden honeypot field (`website`) — filled-in submissions are silently accepted and dropped
+- a per-IP rate limit of 5 requests/minute
+- email-format validation on `reply-to` to prevent header injection
+
+Only `fullname` is required; every other field is optional, matching the design.
+
+---
+
+## Project layout
+
+```
+src/
+  app/
+    layout.tsx            lang="he" dir="rtl", metadata
+    page.tsx              composes the 19 sections in order
+    globals.css           Tailwind theme, fonts, keyframes, non-Tailwind utilities
+    api/contact/route.ts  Resend handler
+  components/
+    MotionProvider.tsx    all scroll-driven motion (see below)
+    ui.tsx                gradient icon system + CTA button
+    reactbits/            Aurora, CurvedLoop, LogoLoop, DomeGallery
+    sections/             one file per page section
+  lib/
+    assets.ts             Supabase-or-local image URL resolver
+    content.ts            all page copy, FAQ, testimonials, logos
+public/
+  assets/                 the 44 images the site uses
+  fonts/                  Futurism (Light + Bold)
+project/                  original Claude Design export (reference only)
+```
+
+### Motion
+
+[`MotionProvider`](src/components/MotionProvider.tsx) drives everything from a
+single scroll handler rather than one-shot triggers, so elements fade back out
+on the way past and stay correct after resize:
+
+- `data-reveal` — fade/slide/blur in. `data-reveal-early` triggers sooner,
+  `data-reveal-x="left|right"` slides horizontally, `data-reveal-mode="scale"` scales up.
+- `data-letters` — splits a headline into per-character spans and staggers them.
+  Handles gradient-clipped text by re-applying the gradient to each character.
+- `data-stack-card` — sticky cards that shrink/darken/blur as the next covers them.
+- `data-tl-wrap` / `data-tl-line` / `data-tl-dot` — the process timeline spine.
+- `data-magnet` — buttons that lean toward the cursor.
+
+Lenis provides smooth scrolling; anchor links are routed through it so native
+smooth-scroll does not fight it. Everything is disabled under
+`prefers-reduced-motion`.
+
+---
+
+## Notes on the port
+
+- **Copy is locked verbatim** from the client's brief (see `project/brand.md`),
+  including typos and phrasing quirks. Do not "fix" wording in
+  [`src/lib/content.ts`](src/lib/content.ts) without the client's approval.
+- **Breakpoints** in `globals.css` are offset by 1px (`sm: 641px`, `md: 901px`, …)
+  so Tailwind's min-width utilities line up exactly with the prototype's
+  max-width media queries.
+- **A few rules stayed as CSS** because Tailwind cannot express them: stacked
+  `mask-image` gradients, the `@property --runAng` conic border, the mobile hero's
+  `content: url()` image swap, and the animated `-webkit-line-clamp` on
+  testimonials. They live as named utilities in `globals.css`.
+- Original assets had Hebrew filenames and spaces; they were renamed to ASCII
+  slugs when copied into `public/assets` (URLs need it).
+- The design export in `project/` is 396 MB of raw media; only the HTML and brand
+  docs are committed — the media folders are gitignored.
+
+---
+
+## Deploy
+
+Works on Vercel with no extra config. Set the env vars from `.env.example` in the
+project settings; `NEXT_PUBLIC_SUPABASE_URL` must be present at **build** time for
+the `next/image` host whitelist.

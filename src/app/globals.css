@@ -1,0 +1,269 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+
+   Breakpoints are chosen so Tailwind's min-width utilities line up exactly with
+   the prototype's max-width media queries. The prototype used `max-width:640px`,
+   so `sm:` here starts at 641px — i.e. "everything the mobile block did NOT
+   apply to". Same idea for the rest.
+     sm  641px  <- prototype's @media (max-width: 640px)
+     md  901px  <- prototype's @media (max-width: 900px)
+     lg 1181px  <- prototype's @media (max-width: 1180px)  (nav appears)
+     xl 1201px  <- prototype's @media (max-width: 1200px)  (floating hero card)
+     2xl 1381px <- prototype's @media (max-width: 1380px)  (nav at full size)
+--------------------------------------------------------------------------- */
+@theme {
+  --breakpoint-sm: 641px;
+  --breakpoint-md: 901px;
+  --breakpoint-lg: 1181px;
+  --breakpoint-xl: 1201px;
+  --breakpoint-2xl: 1381px;
+
+  --font-sans: 'Futurism', 'Heebo', sans-serif;
+
+  /* Page */
+  --color-page: #f6f5f3;
+  --color-page-alt: #f6f5f2;
+  --color-ink: #1b1a1f;
+  --color-ink-black: #000000;
+  --color-ink-gray: #5b5b5a;
+  --color-gray-body: #595857;
+  --color-dark: #232227;
+  --color-dark-soft: #2b2a30;
+  --color-dark-dot: #3a3844;
+  --color-on-dark: #f2f1f5;
+  --color-on-dark-muted: #b9b6c4;
+
+  /* Spectrum */
+  --color-brand-green: #06b58d;
+  --color-brand-teal: #42c5c6;
+  --color-brand-sky: #6eb9f2;
+
+  --animate-spin-slow: spinSlow 18s linear infinite;
+  --animate-bob: bobArrow 2.2s ease-in-out infinite;
+  --animate-run-border: runBorder 7s linear infinite;
+  --animate-hero-grad: heroGradShift 9s ease-in-out infinite alternate;
+  --animate-intro-spin: introSpin 8s linear infinite;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Fonts                                                                        */
+/* --------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Futurism';
+  src: url('/fonts/Futurism-Light.woff2') format('woff2'), url('/fonts/Futurism-Light.woff') format('woff');
+  font-weight: 200 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Futurism';
+  src: url('/fonts/Futurism-Bold.woff2') format('woff2'), url('/fonts/Futurism-Bold.woff') format('woff');
+  font-weight: 600 900;
+  font-display: swap;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Keyframes                                                                    */
+/* --------------------------------------------------------------------------- */
+@keyframes spinSlow { to { transform: rotate(-360deg); } }
+@keyframes bobArrow {
+  0%, 100% { transform: translate(-50%, -58%); }
+  50%      { transform: translate(-50%, -42%); }
+}
+@keyframes heroGradShift {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+@keyframes introSpin { to { transform: rotate(360deg); } }
+@keyframes rbLoop { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Bonus-grid tracer pulses */
+@keyframes pulseR { 0% { left: 48%; opacity: 0; } 10% { opacity: 1; } 80% { opacity: 1; } 100% { left: 104%; opacity: 0; } }
+@keyframes pulseL { 0% { left: 34%; opacity: 0; } 10% { opacity: 1; } 80% { opacity: 1; } 100% { left: -22%; opacity: 0; } }
+@keyframes pulseD { 0% { top: 48%;  opacity: 0; } 10% { opacity: 1; } 80% { opacity: 1; } 100% { top: 104%;  opacity: 0; } }
+@keyframes pulseU { 0% { top: 32%;  opacity: 0; } 10% { opacity: 1; } 80% { opacity: 1; } 100% { top: -24%;  opacity: 0; } }
+
+/* --------------------------------------------------------------------------- */
+/* Base                                                                         */
+/* --------------------------------------------------------------------------- */
+@layer base {
+  body {
+    margin: 0;
+    background: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  /* The prototype gave body copy a hairline stroke so the light Futurism weight
+     reads solidly against the warm page background. */
+  p,
+  input,
+  textarea {
+    -webkit-text-stroke: 0.35px currentColor;
+  }
+
+  input,
+  button,
+  textarea {
+    font-family: inherit;
+  }
+
+  ::selection {
+    background: #7374fb;
+    color: #fff;
+  }
+}
+
+/* --------------------------------------------------------------------------- */
+/* Utilities with no Tailwind equivalent                                        */
+/*                                                                              */
+/* These are the rules flagged during the port: stacked mask-image gradients,    */
+/* an @property-driven conic border, the mobile hero art swap, and the           */
+/* line-clamp transition on testimonials. Everything else is Tailwind.          */
+/* --------------------------------------------------------------------------- */
+@utility text-spectrum {
+  background: linear-gradient(100deg, #06b58d, #42c5c6 50%, #6eb9f2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-spectrum-rev {
+  background: linear-gradient(100deg, #6eb9f2, #42c5c6 50%, #06b58d);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Headline treatment: near-black with a subtle grey fade. #5b5b5a / #000000 are
+   the client's mandated "grey" and "black" (see project/CLAUDE.md). */
+@utility text-headline {
+  background: linear-gradient(to left, #5b5b5a, #000000);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Big outlined numerals (01, 02, …) that fade out downward. */
+@utility numeral-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.75px rgba(66, 197, 198, 0.62);
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 45%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 45%, transparent 100%);
+}
+
+@utility numeral-outline-soft {
+  color: transparent;
+  -webkit-text-stroke: 1.25px rgba(66, 197, 198, 0.35);
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 25%, transparent 95%);
+  mask-image: linear-gradient(180deg, #000 25%, transparent 95%);
+}
+
+/* Animated conic-gradient border. Needs @property so the angle can be tweened. */
+@property --runAng {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes runBorder { to { --runAng: 360deg; } }
+
+@utility run-border {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    pointer-events: none;
+    z-index: 5;
+    background: conic-gradient(
+      from var(--runAng),
+      transparent 0 22%,
+      rgba(6, 181, 141, 1) 32%,
+      rgba(66, 197, 198, 1) 38%,
+      rgba(110, 185, 242, 1) 44%,
+      transparent 50% 72%,
+      rgba(6, 181, 141, 1) 82%,
+      rgba(66, 197, 198, 1) 88%,
+      rgba(110, 185, 242, 1) 94%,
+      transparent 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    animation: runBorder 7s linear infinite;
+  }
+}
+
+/* Rotating spectrum halo behind the intro video. */
+@utility intro-halo {
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -42%;
+    z-index: 0;
+    background: conic-gradient(
+      from 0deg,
+      rgba(6, 181, 141, 0) 0deg,
+      #06b58d 70deg,
+      #42c5c6 130deg,
+      #6eb9f2 190deg,
+      rgba(110, 185, 242, 0) 265deg,
+      rgba(6, 181, 141, 0) 360deg
+    );
+    filter: blur(14px);
+    animation: introSpin 8s linear infinite;
+    pointer-events: none;
+  }
+}
+
+/* Testimonial read-more clamp. Animating between clamped and unclamped needs a
+   max-height transition alongside -webkit-line-clamp; Tailwind's line-clamp
+   utility cannot express the transition. */
+.testimonial-text {
+  overflow: hidden;
+  max-height: 900px;
+  transition: max-height 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.testimonial-text[data-clamped='true'] {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  max-height: 228px;
+}
+
+/* Hide the horizontal scrollbar on the testimonial strip (Firefox uses
+   scrollbar-width, which Tailwind does cover, but WebKit needs this). */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Below 900px the hero swaps to a differently-cropped portrait. `content: url()`
+   is the only way to swap an <img> source from CSS, and the swap has to be a
+   media query rather than two <img> tags so only one file is ever fetched. */
+@media (max-width: 900px) {
+  [data-hero-portrait] {
+    content: url('/assets/eyal-mobile.png');
+  }
+}
+
+/* Reveal elements start hidden; the motion engine paints them on first frame.
+   Without this they flash at full opacity before hydration. */
+[data-reveal] {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}

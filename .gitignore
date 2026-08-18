@@ -1,0 +1,25 @@
+node_modules/
+.next/
+out/
+build/
+
+.env
+.env.local
+.env*.local
+
+next-env.d.ts
+*.tsbuildinfo
+
+.DS_Store
+Thumbs.db
+.vercel
+
+# Claude Design export: 396MB of raw media. The design HTML + brand docs are
+# kept (see project/*.dc.html, project/brand.md); the bulk media is not.
+# Everything the site actually uses lives in public/assets.
+project/uploads/
+project/backups/
+project/styleguide/
+project/fonts/
+project/assets/
+project/.thumbnail
