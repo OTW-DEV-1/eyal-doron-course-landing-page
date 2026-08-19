@@ -92,13 +92,13 @@ export function Hero() {
             data-reveal
             className="mt-[1.2em] flex w-full flex-wrap justify-center gap-4 pt-[1.2em] sm:mt-[2em] sm:w-auto sm:justify-start sm:pt-[2em]"
           >
-            <Cta href="#contact" className="max-w-[250px] flex-1 px-7 py-[13px] text-center text-[20.4px] sm:flex-none">
+            <Cta href="#contact" className="max-w-[250px] flex-1 px-3 py-[13px] text-center text-[18px] whitespace-nowrap sm:flex-none sm:px-7 sm:text-[20.4px]">
               הצטרפו לתהליך
             </Cta>
             <Cta
               href="#benefits"
               variant="outline"
-              className="max-w-[250px] flex-1 px-7 py-[13px] text-center text-[20.4px] sm:flex-none"
+              className="max-w-[250px] flex-1 px-3 py-[13px] text-center text-[18px] whitespace-nowrap sm:flex-none sm:px-7 sm:text-[20.4px]"
             >
               למידע נוסף
             </Cta>
