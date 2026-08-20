@@ -17,6 +17,8 @@ type Payload = {
   email?: unknown
   phone?: unknown
   participants?: unknown
+  /** Full URL of the page the form was submitted from. */
+  source?: unknown
   /** Honeypot — real users never fill this. */
   website?: unknown
 }
@@ -67,6 +69,8 @@ export async function POST(req: Request) {
   const email = str(body.email, 160)
   const phone = str(body.phone, 40)
   const participants = str(body.participants, 20)
+  // Prefer the URL the browser reported; fall back to the Referer header.
+  const source = str(body.source, 2000) || str(req.headers.get('referer') ?? '', 2000)
 
   if (!fullname) {
     return NextResponse.json({ error: 'missing_name' }, { status: 400 })
@@ -101,7 +105,7 @@ export async function POST(req: Request) {
   // Relay to Zapier and Resend in parallel. The lead is accepted if either
   // channel took it, so a hiccup on one side does not lose the submission.
   const [zapierOk, emailOk] = await Promise.all([
-    sendToZapier({ fullname, org, role, email, phone, participants }),
+    sendToZapier({ fullname, org, role, email, phone, participants, source }),
     sendEmail({ fullname, email, html, text }),
   ])
 
@@ -116,7 +120,7 @@ async function sendToZapier(lead: Record<string, string>) {
     const res = await fetch(ZAPIER_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...lead, source: 'eyal-doron-landing', submittedAt: new Date().toISOString() }),
+      body: JSON.stringify({ ...lead, submittedAt: new Date().toISOString() }),
     })
     if (!res.ok) console.error('Zapier webhook rejected the lead:', res.status)
     return res.ok

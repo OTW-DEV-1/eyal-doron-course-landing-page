@@ -17,7 +17,11 @@ export function Contact() {
     if (status === 'sending' || status === 'sent') return
     setStatus('sending')
 
-    const data = Object.fromEntries(new FormData(e.currentTarget).entries())
+    const data = {
+      ...Object.fromEntries(new FormData(e.currentTarget).entries()),
+      // Full landing-page URL (incl. UTM / query string) so the lead source is traceable.
+      source: window.location.href,
+    }
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
