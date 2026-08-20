@@ -6,6 +6,9 @@ export const runtime = 'nodejs'
 const TO = process.env.CONTACT_TO_EMAIL
 const FROM = process.env.CONTACT_FROM_EMAIL
 const API_KEY = process.env.RESEND_API_KEY
+/** Zapier catch hook — receives every valid lead alongside the email. */
+const ZAPIER_WEBHOOK_URL =
+  process.env.ZAPIER_WEBHOOK_URL ?? 'https://hooks.zapier.com/hooks/catch/15212804/4tsgrbi/'
 
 type Payload = {
   fullname?: unknown
@@ -43,11 +46,6 @@ const escapeHtml = (v: string) =>
   v.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 
 export async function POST(req: Request) {
-  if (!API_KEY || !TO || !FROM) {
-    console.error('Contact form is not configured: RESEND_API_KEY / CONTACT_TO_EMAIL / CONTACT_FROM_EMAIL')
-    return NextResponse.json({ error: 'not_configured' }, { status: 500 })
-  }
-
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
   if (rateLimited(ip)) {
     return NextResponse.json({ error: 'rate_limited' }, { status: 429 })
@@ -100,6 +98,49 @@ export async function POST(req: Request) {
 
   const text = rows.map(([k, v]) => `${k}: ${v}`).join('\n')
 
+  // Relay to Zapier and Resend in parallel. The lead is accepted if either
+  // channel took it, so a hiccup on one side does not lose the submission.
+  const [zapierOk, emailOk] = await Promise.all([
+    sendToZapier({ fullname, org, role, email, phone, participants }),
+    sendEmail({ fullname, email, html, text }),
+  ])
+
+  if (!zapierOk && !emailOk) {
+    return NextResponse.json({ error: 'send_failed' }, { status: 502 })
+  }
+  return NextResponse.json({ ok: true })
+}
+
+async function sendToZapier(lead: Record<string, string>) {
+  try {
+    const res = await fetch(ZAPIER_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...lead, source: 'eyal-doron-landing', submittedAt: new Date().toISOString() }),
+    })
+    if (!res.ok) console.error('Zapier webhook rejected the lead:', res.status)
+    return res.ok
+  } catch (err) {
+    console.error('Zapier webhook threw:', err)
+    return false
+  }
+}
+
+async function sendEmail({
+  fullname,
+  email,
+  html,
+  text,
+}: {
+  fullname: string
+  email: string
+  html: string
+  text: string
+}) {
+  if (!API_KEY || !TO || !FROM) {
+    console.error('Email relay is not configured: RESEND_API_KEY / CONTACT_TO_EMAIL / CONTACT_FROM_EMAIL')
+    return false
+  }
   try {
     const resend = new Resend(API_KEY)
     const { error } = await resend.emails.send({
@@ -112,11 +153,11 @@ export async function POST(req: Request) {
     })
     if (error) {
       console.error('Resend rejected the message:', error)
-      return NextResponse.json({ error: 'send_failed' }, { status: 502 })
+      return false
     }
-    return NextResponse.json({ ok: true })
+    return true
   } catch (err) {
     console.error('Contact form send threw:', err)
-    return NextResponse.json({ error: 'send_failed' }, { status: 502 })
+    return false
   }
 }
